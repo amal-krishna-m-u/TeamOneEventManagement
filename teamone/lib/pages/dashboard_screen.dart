@@ -12,6 +12,7 @@ import 'login_screen.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
+ 
 
   @override
   _DashboardState createState() => _DashboardState();
@@ -35,6 +36,10 @@ class _DashboardState extends State<Dashboard> {
         return Container();
     }
   }
+
+
+
+
 
   @override
   void initState() {
@@ -69,9 +74,12 @@ class _DashboardState extends State<Dashboard> {
     final BorderRadius borderRadius = BorderRadius.all(Radius.circular(8.0));
     final userid = authServices.getUserId();
     final usereamil = authServices.getUserEmail();
+    final username = authServices.getUserName();
 
-    Widget _buildContainer(
-        String title, String subtitle, String iconName, String routeName) {
+
+
+Widget _buildContainer(
+  String title, String subtitle, String iconName, String routeName){
       IconData icon =
           Icons.error; // Default icon in case icon name is not found
 
@@ -145,23 +153,14 @@ class _DashboardState extends State<Dashboard> {
                     children: [
                       SizedBox(height: 10),
                       ElevatedButton.icon(
-                        onPressed: () {
-                          if (routeName == 'MyEvents') {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => MyEvents(),
-                              ),
-                            );
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => MyStats(),
-                              ),
-                            );
-                          }
-                        },
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => getScreenByRouteName(routeName),
+                        ),
+                      );
+                    },
                         icon: Icon(Icons.open_in_new),
                         label: Text(''),
                         style: ElevatedButton.styleFrom(
@@ -246,7 +245,7 @@ class _DashboardState extends State<Dashboard> {
                               width: 200,
                               child: Center(
                                 child: Text(
-                                  '$usereamil',
+                                  '$username',
                                   style: TextStyle(
                                     color: colorScheme.onSurface,
                                     fontWeight: FontWeight.bold,

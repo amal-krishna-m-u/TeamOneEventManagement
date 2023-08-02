@@ -18,6 +18,7 @@ class _MyRegisterState extends State<MyRegister> {
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _fullNameController = TextEditingController();
 
   @override
   void initState() {
@@ -35,6 +36,7 @@ Future<void> signUp() async {
     final response = await supabase.client.auth.signUp(
       email: _emailController.text,
       password: _passwordController.text,
+      data: { 'name': _fullNameController.text}
     );
 
 
@@ -109,6 +111,20 @@ Future<void> signUp() async {
                 ),
                 child: Column(
                   children: [
+                    TextField(
+                      controller: _fullNameController,
+                      decoration: InputDecoration(
+                        fillColor: Colors.grey.shade100,
+                        filled: true,
+                        hintText: 'Name',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 30,
+                    ),
                     TextField(
                       controller: _emailController,
                       decoration: InputDecoration(
