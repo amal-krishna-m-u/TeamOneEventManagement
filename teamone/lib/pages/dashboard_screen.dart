@@ -12,7 +12,6 @@ import 'login_screen.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
- 
 
   @override
   _DashboardState createState() => _DashboardState();
@@ -36,10 +35,6 @@ class _DashboardState extends State<Dashboard> {
         return Container();
     }
   }
-
-
-
-
 
   @override
   void initState() {
@@ -74,12 +69,10 @@ class _DashboardState extends State<Dashboard> {
     final BorderRadius borderRadius = BorderRadius.all(Radius.circular(8.0));
     final userid = authServices.getUserId();
     final usereamil = authServices.getUserEmail();
-    final username = authServices.getUserName();
+    final username = authServices.getUserName().toUpperCase();
 
-
-
-Widget _buildContainer(
-  String title, String subtitle, String iconName, String routeName){
+    Widget _buildContainer(
+        String title, String subtitle, String iconName, String routeName) {
       IconData icon =
           Icons.error; // Default icon in case icon name is not found
 
@@ -88,7 +81,7 @@ Widget _buildContainer(
           icon = Icons.event;
           break;
         case 'invoice.png':
-          icon = Icons.attach_money;
+          icon = Icons.monetization_on_outlined;
           break;
         case 'employee.png':
           icon = Icons.people;
@@ -100,11 +93,11 @@ Widget _buildContainer(
           break;
       }
       if (routeName == 'EmployeeManagement') {
-        icon = Icons.book;
+        icon = Icons.person_3_outlined;
       }
 
       return Padding(
-        padding: EdgeInsets.only(bottom: 20),
+        padding: EdgeInsets.only(bottom: 30, left: 15, right: 15),
         child: Material(
           type: MaterialType.card,
           borderRadius: borderRadius,
@@ -116,67 +109,52 @@ Widget _buildContainer(
             widthFactor: 0.9,
             child: Container(
               width: double.infinity,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(width: 20),
-                  Image.asset(
-                    'lib/images/$iconName',
-                    height: 150,
-                    width: 150,
-                    fit: BoxFit.cover,
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        Text(
-                          subtitle,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => getScreenByRouteName(routeName),
                     ),
-                  ),
-                  SizedBox(width: 10),
-                  Column(
+                  );
+                },
+                child: Padding(
+                  padding:
+                      EdgeInsets.only(left: 5, bottom: 30, top: 10, right: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      SizedBox(height: 10),
-                      ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => getScreenByRouteName(routeName),
-                        ),
-                      );
-                    },
-                        icon: Icon(Icons.open_in_new),
-                        label: Text(''),
-                        style: ElevatedButton.styleFrom(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          textStyle: TextStyle(
-                            fontSize: 12,
-                          ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              subtitle,
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      SizedBox(
-                        height: 20,
+                      Icon(
+                        icon,
+                        size: 50,
+                        color: Colors.black,
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -212,23 +190,23 @@ Widget _buildContainer(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           SizedBox(width: 30),
-                          Material(
-                            type: MaterialType.card,
-                            borderRadius: borderRadius,
-                            shadowColor: shadowcolor,
-                            surfaceTintColor: surfacetint,
-                            color: color,
-                            elevation: 10,
-                            child: SizedBox(
-                              height: 120,
-                              width: 120,
-                              child: Center(
-                                child: Image.asset(
-                                  'lib/images/userimage.jpeg',
-                                  height: 150,
-                                  width: 150,
-                                  fit: BoxFit.cover,
-                                ),
+                          ClipRRect(
+                            // Wrap with ClipRRect to make the Material widget circular
+                            borderRadius: BorderRadius.circular(
+                                57), // Set a high enough value for a circular effect
+                            child: Material(
+                              type: MaterialType.card,
+                              borderRadius: borderRadius,
+                              shadowColor: shadowcolor,
+                              surfaceTintColor: surfacetint,
+                              color: Color.fromARGB(255, 120, 111, 111),
+                              elevation: 10,
+                              child: CircleAvatar(
+                                // Use CircleAvatar to display the user image
+                                radius:
+                                    60, // Set the radius to customize the size
+                                backgroundImage: AssetImage(
+                                    'lib/images/userimage.jpeg'), // Set the user image
                               ),
                             ),
                           ),
@@ -243,7 +221,8 @@ Widget _buildContainer(
                             child: SizedBox(
                               height: 100,
                               width: 200,
-                              child: Center(
+                              child: Align(
+                                alignment: Alignment.center,
                                 child: Text(
                                   '$username',
                                   style: TextStyle(
