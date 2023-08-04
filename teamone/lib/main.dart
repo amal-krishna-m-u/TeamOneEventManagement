@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:smartdeckapp/pages/login_screen.dart';
-import 'package:smartdeckapp/services/supabase_config.dart';
+import 'package:TeamOne/pages/login_screen.dart';
+import 'package:TeamOne/services/supabase_config.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 

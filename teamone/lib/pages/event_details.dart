@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:smartdeckapp/pages/dashboard_screen.dart';
-import 'package:smartdeckapp/pages/register_screen.dart';
-import 'package:supabase/supabase.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:TeamOne/main.dart';
+import 'package:TeamOne/pages/dashboard_screen.dart';
+import 'package:TeamOne/pages/event_details.dart';
+import 'package:TeamOne/services/supabase_client.dart';
+import 'package:TeamOne/services/supabase_config.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:smartdeckapp/services/supabase_config.dart';
-import 'package:smartdeckapp/services/supabase_client.dart';
-import 'package:smartdeckapp/main.dart';
+
+enum TimelineStatus {
+  notStarted,
+  workInProgress,
+  workCompleted,
+  paymentReceived,
+  paymentClosed,
+}
 
 class MyEventsDetails extends StatefulWidget {
   final String eventName;
@@ -54,14 +63,14 @@ class _MyEventDetailsState extends State<MyEventsDetails> {
         final event = data.first;
 
         setState(() {
-tableData = [
-          {
-            'name': event['event_name']?.toString() ?? '',
-            'place': event['event_place']?.toString() ?? '',
-            'participants': event['participants'] as int? ?? 0,
-            'employees': event['no_of_employees'] as int? ?? 0,
-          }
-        ];
+          tableData = [
+            {
+              'name': event['event_name']?.toString() ?? '',
+              'place': event['event_place']?.toString() ?? '',
+              'participants': event['participants'] as int? ?? 0,
+              'employees': event['no_of_employees'] as int? ?? 0,
+            }
+          ];
         });
       } else {
         // No matching event found
@@ -77,139 +86,59 @@ tableData = [
       print('Error fetching events from Supabase: ${response.data.toString()}');
     }
   }
-
-  @override
+         
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
-      body: SafeArea(
+      appBar: AppBar(
+        title: Text(widget.eventName),
+        actions: [
+          IconButton(
+            onPressed: () {
+              // Navigate to a separate screen to display event details
+            },
+            icon: Icon(Icons.info_outline),
+          ),
+        ],
+      ),
+      body: Container(
+        padding: EdgeInsets.all(10),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /*Text('Events: ${events.join(", ")}'),
-            Text('Places: ${places.join(", ")}'),
-            Text('Number of Participants: ${numberParticipants.join(", ")}'),
-            Text('Employees: ${employees.join(", ")}'),
             ElevatedButton(
-              onPressed: fetchEventsFromSupabase,
-              child: Text('Refresh events Status'),
-            ),*/
-           Expanded(
-              child: Container(
-                alignment: Alignment.topLeft,
-                margin: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 5,
-                      offset: Offset(2, 2),
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.bar_chart_rounded,
-                            size: 20,
-                            color: Colors.black,
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            'Event Status',
-                            style: TextStyle(
-                              color: Colors.black87,
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Row( 
-                        children: [
-                          Icon(
-                            Icons.event_note_rounded,
-                            size: 20,
-                            color: Colors.black,
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            'Event Name',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 17,
-                            ),
-                          ),
-                          SizedBox(width: 30),
-                          Icon(
-                            Icons.person,
-                            size: 20,
-                            color: Colors.black,
-                          ),
-                          
-                          Text(
-                            'Total participants',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 17,
-                            )
-                          ),
-                          
-                        ],
-                      ),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: tableData.length,
-                          itemBuilder: (context, index) {
-                            return ListTile(
-                              title: Text(tableData[index]['name'],
-                                  style: TextStyle(
-                                    color: Colors.grey[700],
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 17,
-                                  )
-                              ),
-                              subtitle: Text(tableData[index]['place'],
-                                  style: TextStyle(
-                                    color: Colors.grey[700],
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 17,
-                                  )
-                              ),
-                              leading: Icon(Icons.event),
-                              trailing: Text(tableData[index]['participants']
-                                  .toString(),
-                                  style: TextStyle(
-                                    color: Colors.grey[700],
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 17,
-                                  )
-
-                                  ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              onPressed: () {
+                // Navigate to a separate screen to display event details
+              },
+              child: Text('Event Details'),
             ),
-          
-          
-          
+            SizedBox(height: 20),
+            // Place other widgets here as needed
           ],
         ),
       ),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton.extended(
+            onPressed: () {
+              // Implement the logic to add or assign employees to the event
+            },
+            icon: Icon(Icons.person_add),
+            label: Text('Assign Employee'),
+          ),
+          SizedBox(height: 10),
+          FloatingActionButton.extended(
+            onPressed: () {
+              // Implement the logic to add or assign resources to the event
+            },
+            icon: Icon(Icons.inventory),
+            label: Text('Assign Resources'),
+          ),
+        ],
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
+

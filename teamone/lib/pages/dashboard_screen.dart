@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:smartdeckapp/pages/bill_history.dart';
-import 'package:smartdeckapp/pages/manage_emp.dart';
-import 'package:smartdeckapp/pages/topics_screen.dart';
-import 'package:smartdeckapp/pages/stats_screen.dart';
+import 'package:TeamOne/pages/bill_history.dart';
+import 'package:TeamOne/pages/manage_emp.dart';
+import 'package:TeamOne/pages/topics_screen.dart';
+import 'package:TeamOne/pages/stats_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:smartdeckapp/services/supabase_config.dart';
-import 'package:smartdeckapp/services/supabase_client.dart';
-import 'package:smartdeckapp/main.dart';
+import 'package:TeamOne/services/supabase_config.dart';
+import 'package:TeamOne/services/supabase_client.dart';
+import 'package:TeamOne/main.dart';
 
 import 'login_screen.dart';
 

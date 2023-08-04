@@ -1,4 +1,4 @@
-name: smartdeckapp
+name: TeamOne
 description: A new Flutter project.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -57,11 +57,7 @@ dev_dependencies:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
-flutter_native_splash:
-  image: lib/images/logo.png
-  color: "#ffffff"
-  image_dark: lib/images/logo_dark.png
-  color_dark: "#000000"
+
 
 # The following section is specific to Flutter packages.
 flutter:

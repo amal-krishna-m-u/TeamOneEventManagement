@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:smartdeckapp/services/supabase_config.dart';
+import 'package:TeamOne/services/supabase_config.dart';
 import 'package:flutter/material.dart';
 
 class FlashcardsScreen extends StatefulWidget {

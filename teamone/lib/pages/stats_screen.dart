@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:smartdeckapp/pages/dashboard_screen.dart';
-import 'package:smartdeckapp/pages/register_screen.dart';
+import 'package:TeamOne/pages/dashboard_screen.dart';
+import 'package:TeamOne/pages/register_screen.dart';
 import 'package:chart_sparkline/chart_sparkline.dart';
 
 class MyStats extends StatefulWidget {

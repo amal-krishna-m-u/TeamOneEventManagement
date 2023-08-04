@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:smartdeckapp/pages/dashboard_screen.dart';
-import 'package:smartdeckapp/pages/register_screen.dart';
+import 'package:TeamOne/pages/dashboard_screen.dart';
+import 'package:TeamOne/pages/register_screen.dart';
 import 'package:supabase/supabase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:smartdeckapp/services/supabase_config.dart';
-import 'package:smartdeckapp/services/supabase_client.dart';
-import 'package:smartdeckapp/main.dart';
+import 'package:TeamOne/services/supabase_config.dart';
+import 'package:TeamOne/services/supabase_client.dart';
+import 'package:TeamOne/main.dart';
 
 class MyLogin extends StatefulWidget {
   const MyLogin({Key? key}) : super(key: key);
