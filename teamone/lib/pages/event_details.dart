@@ -43,7 +43,7 @@ class _MyEventDetailsState extends State<MyEventsDetails> {
     final response = await client
         .from('events')
         .select()
-        .eq('name', name) // Add the condition for name
+        .eq('event_name', name) // Add the condition for name
         .limit(1) // Limit the result to 1 row
         .execute();
 
@@ -56,10 +56,10 @@ class _MyEventDetailsState extends State<MyEventsDetails> {
         setState(() {
 tableData = [
           {
-            'name': event['name']?.toString() ?? '',
-            'place': event['place']?.toString() ?? '',
+            'name': event['event_name']?.toString() ?? '',
+            'place': event['event_place']?.toString() ?? '',
             'participants': event['participants'] as int? ?? 0,
-            'employees': event['employees'] as int? ?? 0,
+            'employees': event['no_of_employees'] as int? ?? 0,
           }
         ];
         });

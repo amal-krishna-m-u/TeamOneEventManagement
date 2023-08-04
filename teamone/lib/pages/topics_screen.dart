@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartdeckapp/main.dart';
 import 'app_colors.dart';
@@ -21,10 +22,33 @@ class _MyEventsState extends State<MyEvents> {
   List<String> searchResult = [];
   List<String> events = [];
 
+  DateTime selectedDate = DateTime.now();
+
   @override
   void initState() {
     super.initState();
     loadEvents();
+  }
+
+  DateTime removeTimeFromDate(DateTime date) {
+    return DateTime(date.year, date.month, date.day);
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime currentDate = DateTime.now();
+    final DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: currentDate,
+      firstDate: DateTime(currentDate.year - 5),
+      lastDate: DateTime(currentDate.year + 5),
+    );
+
+    if (selectedDate != null && selectedDate != currentDate) {
+      setState(() {
+        // Update the selected date if it's not null and not the same as the current date
+        this.selectedDate = selectedDate;
+      });
+    }
   }
 
   Future<void> loadEvents() async {
@@ -49,12 +73,17 @@ class _MyEventsState extends State<MyEvents> {
           String place = '';
           int participants = 0;
           int employees = 0;
+          String eventManagementTeam = '';
+          double advanceAmount = 0;
+          double totalAmount = 0;
+          String eventType = '';
+          // slectedDate = DateTime.now();
 
           return AlertDialog(
             icon: Icon(
               Icons.event_available_outlined,
               color: Colors.black,
-              size:25,
+              size: 25,
             ),
             actionsOverflowButtonSpacing: 20,
             backgroundColor: Colors.white,
@@ -94,7 +123,6 @@ class _MyEventsState extends State<MyEvents> {
                   ),
                 ),
                 TextField(
-
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 20,
@@ -108,6 +136,117 @@ class _MyEventsState extends State<MyEvents> {
                       color: Colors.black,
                     ),
                     labelText: 'Number of Participants',
+                    labelStyle: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                  ),
+                  onTap: () =>
+                      _selectDate(context), // Open date picker when clicked
+                  controller: TextEditingController(
+                    text: DateFormat('yyyy-MM-dd').format(
+                        selectedDate), // Display formatted date in the field
+                  ),
+                  readOnly: true, // To prevent manual editing
+                  decoration: InputDecoration(
+                    icon: Icon(
+                      Icons.date_range,
+                      color: Colors.black,
+                    ),
+                    labelText: 'Select Date',
+                    labelStyle: TextStyle(
+                      color: Colors.black,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                TextField(
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                  ),
+                  onChanged: (value) {
+                    eventManagementTeam = value;
+                  },
+                  decoration: InputDecoration(
+                    icon: Icon(
+                      Icons.people_alt_outlined,
+                      color: Colors.black,
+                    ),
+                    labelText: 'Event Management Team',
+                    labelStyle: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                TextField(
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                  ),
+                  onChanged: (value) {
+                    eventType = value;
+                  },
+                  decoration: InputDecoration(
+                    icon: Icon(
+                      Icons.set_meal_outlined,
+                      color: Colors.black,
+                    ),
+                    labelText: 'Event Type',
+                    labelStyle: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                TextField(
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                  ),
+                  onChanged: (value) {
+                    advanceAmount = double.tryParse(value) ?? 0;
+                  },
+                  decoration: InputDecoration(
+                    icon: Icon(
+                      Icons.price_check_outlined,
+                      color: Colors.black,
+                    ),
+                    labelText: 'Advance Amount',
+                    labelStyle: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                  ),
+                  onChanged: (value) {
+                    totalAmount = double.tryParse(value) ?? 0;
+                  },
+                  decoration: InputDecoration(
+                    icon: Icon(
+                      Icons.attach_money_outlined,
+                      color: Colors.black,
+                    ),
+                    labelText: 'Total Amount',
                     labelStyle: TextStyle(
                       color: Colors.black,
                       fontSize: 20,
@@ -142,19 +281,42 @@ class _MyEventsState extends State<MyEvents> {
             ),
             actions: [
               TextButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                    Color.fromARGB(239, 225, 29, 15),
+                  ),
+                ),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text('Cancel'),
+                child: Text(
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    'Cancel'),
               ),
               TextButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                    Color.fromARGB(244, 2, 240, 42),
+                  ),
+                ),
                 onPressed: () async {
                   final insertResponse = await client.from('events').insert({
-                    'name': eventName,
-                    'place': place,
-                    'participants': participants,
-                    'employees': employees,
-                  }).execute();
+  'event_name': eventName,
+  'event_place': place,
+  'participants': participants,
+  'no_of_employees': employees,
+  'event_management_team': eventManagementTeam,
+  'advance_amount': advanceAmount,
+  'total_amount': totalAmount,
+  'event_type': eventType,
+  'event_date': selectedDate.toIso8601String(),
+}).execute();
+
+
                   if (insertResponse.status == 200) {
                     setState(() {
                       events.add(eventName);
@@ -163,7 +325,13 @@ class _MyEventsState extends State<MyEvents> {
                   }
                   Navigator.of(context).pop();
                 },
-                child: Text('Add'),
+                child: Text(
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    'Add'),
               ),
             ],
           );
