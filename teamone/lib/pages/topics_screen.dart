@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartdeckapp/main.dart';
-
+import 'app_colors.dart';
 import 'package:smartdeckapp/pages/dashboard_screen.dart';
 import 'package:smartdeckapp/pages/flashcards_screen.dart';
 import 'package:smartdeckapp/services/supabase_client.dart';
@@ -51,28 +51,91 @@ class _MyEventsState extends State<MyEvents> {
           int employees = 0;
 
           return AlertDialog(
-            title: Text('Add Event'),
+            icon: Icon(
+              Icons.event_available_outlined,
+              color: Colors.black,
+              size:25,
+            ),
+            actionsOverflowButtonSpacing: 20,
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            scrollable: true,
+            shadowColor: Colors.black,
+            elevation: 10,
+            title: Text('Create Event',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                )),
             content: Column(
               children: [
                 TextField(
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                  ),
                   onChanged: (value) {
                     place = value;
                   },
-                  decoration: InputDecoration(labelText: 'Place'),
+                  decoration: InputDecoration(
+                    icon: Icon(
+                      Icons.place,
+                      color: Colors.black,
+                    ),
+                    labelText: 'Place',
+                    labelStyle: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
                 TextField(
+
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                  ),
                   onChanged: (value) {
                     participants = int.tryParse(value) ?? 0;
                   },
-                  decoration:
-                      InputDecoration(labelText: 'Number of Participants'),
+                  decoration: InputDecoration(
+                    icon: Icon(
+                      Icons.emoji_people_outlined,
+                      color: Colors.black,
+                    ),
+                    labelText: 'Number of Participants',
+                    labelStyle: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   keyboardType: TextInputType.number,
                 ),
                 TextField(
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                  ),
                   onChanged: (value) {
                     employees = int.tryParse(value) ?? 0;
                   },
-                  decoration: InputDecoration(labelText: 'Number of Employees'),
+                  decoration: InputDecoration(
+                    icon: Icon(
+                      Icons.people_alt_outlined,
+                      color: Colors.black,
+                    ),
+                    labelText: 'Number of Employees',
+                    labelStyle: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   keyboardType: TextInputType.number,
                 ),
               ],

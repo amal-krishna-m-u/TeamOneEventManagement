@@ -48,9 +48,7 @@ class _DashboardState extends State<Dashboard> {
     // Define your custom color scheme
     final ColorScheme colorScheme = ColorScheme(
       primary: Color(0xFF283747), // Dark blue
-      primaryVariant: Color(0xFF283747), // Dark blue variant
       secondary: Colors.white, // White
-      secondaryVariant: Colors.white, // White variant
       surface: Color.fromARGB(255, 200, 198, 198), // Light gray
       background: Colors.grey[300]!, // Light gray
       error: Colors.red, // Red
