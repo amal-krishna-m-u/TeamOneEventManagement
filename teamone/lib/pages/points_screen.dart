@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:TeamOne/pages/dashboard_screen.dart';
-import 'package:TeamOne/pages/register_screen.dart';
+import 'package:TeamOne/pages/dashboard/dashboard_screen.dart';
+import 'package:TeamOne/pages/auth/register_screen.dart';
 
 class PointsScreen extends StatefulWidget {
   const PointsScreen({Key? key}) : super(key: key);

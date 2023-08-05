@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:TeamOne/main.dart';
-import 'app_colors.dart';
-import 'package:TeamOne/pages/dashboard_screen.dart';
+import '../app_colors.dart';
+import 'package:TeamOne/pages/dashboard/dashboard_screen.dart';
 import 'package:TeamOne/pages/flashcards_screen.dart';
 import 'package:TeamOne/services/supabase_client.dart';
-import 'package:TeamOne/pages/event_details.dart';
+import 'package:TeamOne/pages/event/event_details.dart';
 
 class MyEvents extends StatefulWidget {
   const MyEvents({Key? key}) : super(key: key);
@@ -80,13 +80,13 @@ class _MyEventsState extends State<MyEvents> {
           // slectedDate = DateTime.now();
 
           return AlertDialog(
+            backgroundColor: Colors.white,
             icon: Icon(
               Icons.event_available_outlined,
               color: Colors.black,
               size: 25,
             ),
             actionsOverflowButtonSpacing: 20,
-            backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
             ),

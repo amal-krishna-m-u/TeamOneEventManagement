@@ -1,9 +1,10 @@
+import 'package:TeamOne/pages/event/info_outline.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:TeamOne/main.dart';
-import 'package:TeamOne/pages/dashboard_screen.dart';
-import 'package:TeamOne/pages/event_details.dart';
+import 'package:TeamOne/pages/dashboard/dashboard_screen.dart';
+import 'package:TeamOne/pages/event/event_details.dart';
 import 'package:TeamOne/services/supabase_client.dart';
 import 'package:TeamOne/services/supabase_config.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -95,40 +96,35 @@ class _MyEventDetailsState extends State<MyEventsDetails> {
         actions: [
           IconButton(
             onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => info_outline(),
+                  ),
+                );
+             
               // Navigate to a separate screen to display event details
             },
             icon: Icon(Icons.info_outline),
           ),
         ],
       ),
-      body: Container(
-        padding: EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to a separate screen to display event details
-              },
-              child: Text('Event Details'),
-            ),
-            SizedBox(height: 20),
-            // Place other widgets here as needed
-          ],
-        ),
-      ),
+   
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton.extended(
+           backgroundColor: Colors.white,
             onPressed: () {
               // Implement the logic to add or assign employees to the event
             },
-            icon: Icon(Icons.person_add),
+            icon: Icon(
+              Icons.person_add),
             label: Text('Assign Employee'),
           ),
           SizedBox(height: 10),
           FloatingActionButton.extended(
+            backgroundColor: Colors.white,
             onPressed: () {
               // Implement the logic to add or assign resources to the event
             },

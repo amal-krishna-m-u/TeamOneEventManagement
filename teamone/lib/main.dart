@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:TeamOne/pages/login_screen.dart';
+import 'package:TeamOne/pages/auth/login_screen.dart';
 import 'package:TeamOne/services/supabase_config.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

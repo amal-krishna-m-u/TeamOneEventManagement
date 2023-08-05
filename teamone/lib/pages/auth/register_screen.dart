@@ -1,42 +1,60 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:TeamOne/pages/dashboard_screen.dart';
-import 'package:TeamOne/pages/register_screen.dart';
-import 'package:supabase/supabase.dart';
+import 'package:TeamOne/pages/auth/login_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:TeamOne/services/supabase_config.dart';
+import 'package:TeamOne/services/supabase_config.dart'; 
 import 'package:TeamOne/services/supabase_client.dart';
-import 'package:TeamOne/main.dart';
 
-class MyLogin extends StatefulWidget {
-  const MyLogin({Key? key}) : super(key: key);
+
+class MyRegister extends StatefulWidget {
+  const MyRegister({Key? key}) : super(key: key);
 
   @override
-  State<MyLogin> createState() => _MyLoginState();
+  State<MyRegister> createState() => _MyRegisterState();
 }
 
-class _MyLoginState extends State<MyLogin> {
+class _MyRegisterState extends State<MyRegister> {
   bool _showPassword = false;
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
-  AuthServices authServices = AuthServices(client);
-
-
+  final TextEditingController _fullNameController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-        if(authServices.isLoggedin()){
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Dashboard()));
-    }
-    
+    initializeSupabase(); // Initialize Supabase here
   }
 
- 
+  Future<void> initializeSupabase() async {
+    final supabase = Supabase.initialize(url: supabaseUrl, anonKey: supabaseKey);
+    await supabase;
+  }
 
-  
+Future<void> signUp() async {
+    final supabase = Supabase.instance;
+    final response = await supabase.client.auth.signUp(
+      email: _emailController.text,
+      password: _passwordController.text,
+      data: { 'name': _fullNameController.text}
+    );
 
+
+    if (response.session != null)  {
+      // Registration successful
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MyLogin(),
+        ),
+      );
+      // Handle success and navigate to next screen
+    } else {
+      // Registration failed
+      // Handle error
+      print('Error: ${response.session}');
+    }
+  }
 
   @override
   void dispose() {
@@ -44,6 +62,7 @@ class _MyLoginState extends State<MyLogin> {
     _passwordController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,7 +78,7 @@ class _MyLoginState extends State<MyLogin> {
                       height: 50,
                     ),
                     Icon(
-                      Icons.lock,
+                      Icons.person_add,
                       size: 80,
                       color: Colors.black,
                     ),
@@ -75,7 +94,7 @@ class _MyLoginState extends State<MyLogin> {
                             color: Colors.black,
                             blurRadius: 10,
                             offset: Offset(5, 5),
-                          ),
+                          )
                         ],
                       ),
                     ),
@@ -92,6 +111,20 @@ class _MyLoginState extends State<MyLogin> {
                 ),
                 child: Column(
                   children: [
+                    TextField(
+                      controller: _fullNameController,
+                      decoration: InputDecoration(
+                        fillColor: Colors.grey.shade100,
+                        filled: true,
+                        hintText: 'Name',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 30,
+                    ),
                     TextField(
                       controller: _emailController,
                       decoration: InputDecoration(
@@ -123,7 +156,35 @@ class _MyLoginState extends State<MyLogin> {
                             });
                           },
                           icon: Icon(
-                            _showPassword ? Icons.visibility : Icons.visibility_off,
+                            _showPassword
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    TextField(
+                      obscureText: !_showPassword,
+                      decoration: InputDecoration(
+                        fillColor: Colors.grey.shade100,
+                        filled: true,
+                        hintText: 'Confirm Password',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _showPassword = !_showPassword;
+                            });
+                          },
+                          icon: Icon(
+                            _showPassword
+                                ? Icons.visibility
+                                : Icons.visibility_off,
                           ),
                         ),
                       ),
@@ -134,43 +195,12 @@ class _MyLoginState extends State<MyLogin> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Text(
-                          'Sign In',
-                          style: TextStyle(
-                            color: Color(0xff4c505b),
-                            fontSize: 27,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        CircleAvatar(
-                          radius: 30,
-
-                          backgroundColor: Color(0xff4c505b),
-                          child: IconButton(
-                            onPressed: () {
-                              authServices.signInUser(userEmail: _emailController.text, userPassword: _passwordController.text, context: context);
-                            },
-                            color: Colors.white,
-                            icon: Icon(Icons.arrow_forward_ios),
-                          ),
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      height: 40,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
                         TextButton(
                           onPressed: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => MyRegister(),
+                                builder: (context) => MyLogin(),
                               ),
                             );
                           },
@@ -183,15 +213,27 @@ class _MyLoginState extends State<MyLogin> {
                             ),
                           ),
                         ),
-                        TextButton(
-                          onPressed: () {},
-                          child: Text(
-                            'Forgot Password',
-                            style: TextStyle(
-                              decoration: TextDecoration.underline,
-                              fontSize: 18,
-                              color: Color(0xff4c505b),
-                            ),
+                        SizedBox(width: 40),
+                        Text(
+                          'Register',
+                          style: TextStyle(
+                            color: Color(0xff4c505b),
+                            fontSize: 27,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Color(0xff4c505b),
+                          child: IconButton(
+                            onPressed: () {
+                              signUp();
+                            },
+                            color: Colors.white,
+                            icon: Icon(Icons.arrow_forward_ios),
                           ),
                         ),
                       ],
