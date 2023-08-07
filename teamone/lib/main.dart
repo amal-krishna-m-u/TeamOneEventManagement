@@ -24,7 +24,7 @@ class SmartDeck extends StatelessWidget {
   Widget build(BuildContext context) {
     
     return MaterialApp(
-      title: 'Smart Deck',
+      title: 'TeamOne Events',
       theme: ThemeData(
 primaryColor: Colors.black,
         scaffoldBackgroundColor: Colors.grey[300],
