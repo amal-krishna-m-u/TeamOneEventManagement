@@ -31,6 +31,10 @@ class _MyEventDetailsState extends State<MyEventsDetails> {
   List<String> event_completed = [];
   List<String> payment_received = [];
   List<String> payment_completed = [];
+  List<String> date = [];
+  List<String> event_type = [];
+  List<String>event_team = [];
+
 
 
   @override
@@ -66,7 +70,6 @@ class _MyEventDetailsState extends State<MyEventsDetails> {
         setState(() {
           tableData = [
             {
-              'name': event['event_name']?.toString() ?? '',
               'place': event['event_place']?.toString() ?? '',
               'participants': event['participants'] as int? ?? 0,
               'employees': event['no_of_employees'] as int? ?? 0,
@@ -74,6 +77,11 @@ class _MyEventDetailsState extends State<MyEventsDetails> {
               'event_completed': event['event_completed'].toString(),
               'payment_received': event['payment_received'].toString(),
               'payment_completed': event['payment_completed'].toString(),
+              'date': DateFormat('dd-MM-yyyy')
+                  .format(DateTime.parse(event['event_date']?.toString() ?? '')),
+              'event_type': event['event_type']?.toString() ?? '',
+              'event_team': event['event_management_team']?.toString() ?? '',
+
             }
           ];
         });
@@ -88,6 +96,10 @@ class _MyEventDetailsState extends State<MyEventsDetails> {
           event_completed = [];
           payment_received = [];
           payment_completed = [];
+          date = [];
+          event_type = [];
+          event_team = [];
+          
         });
       }
     } else {
@@ -104,12 +116,13 @@ class _MyEventDetailsState extends State<MyEventsDetails> {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => info_outline(),
-                ),
-              );
+            Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => info_outline(event: widget.eventName),
+  ),
+);
+
 
               // Navigate to a separate screen to display event details
             },
@@ -165,6 +178,7 @@ class _MyEventDetailsState extends State<MyEventsDetails> {
           ),
           SizedBox(height: 10),
           FloatingActionButton.extended(
+            //error thrown here
             backgroundColor: Colors.white,
             onPressed: () {
               // Implement the logic to add or assign resources to the event
