@@ -6,6 +6,7 @@ import 'package:teamone_employee/services/supabase_config.dart';
 import 'package:teamone_employee/services/supabase_client.dart';
 
 
+
 class MyRegister extends StatefulWidget {
   const MyRegister({Key? key}) : super(key: key);
 
@@ -38,15 +39,12 @@ Future<void> signUp() async {
       password: _passwordController.text,
       data: { 'name': _fullNameController.text}
     );
-
-
-    if (response.session != null)  {
+    if (response.session == 1)  {
       // Registration successful
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => MyLogin(),
-        ),
+          builder: (context) => MyLogin()),
       );
       // Handle success and navigate to next screen
     } else {
@@ -248,3 +246,5 @@ Future<void> signUp() async {
     );
   }
 }
+
+

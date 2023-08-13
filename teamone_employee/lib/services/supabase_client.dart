@@ -17,6 +17,59 @@ class DatabaseServices {
 
 //fetch data 
 
+
+Future<List<Map<String, dynamic>>> fetchJoinData({
+  required String tableName,
+  required String conditionColumn1,
+  required dynamic conditionValue1,
+  required String conditionColumn2,
+  required dynamic conditionValue2,
+}) async {
+  final response = await client
+      .from(tableName)
+      .select()
+      .eq(conditionColumn1, conditionValue1)
+      .eq(conditionColumn2, conditionValue2)
+      .execute();
+
+  if (response.status == 200 && response.data != null) {
+    final data = response.data as List<dynamic>;
+    return data.map((e) => e as Map<String, dynamic>).toList();
+  } else {
+    return [];
+  }
+}
+
+Future<List<Map<String, dynamic>>> fetchAllJoinEventData({
+  required int? userId,
+
+}) async {
+  final joinData = await fetchJoinData(
+    tableName: 'event_employee_request',
+    conditionColumn1: 'employee_id',
+    conditionValue1: userId,
+    conditionColumn2: 'approve',
+    conditionValue2: true,
+  );
+
+  final List<Future<Map<String, dynamic>>> eventDataFutures = [];
+
+  for (final data in joinData) {
+    final eventId = data['event_id'] as int;
+    final eventFuture = fetchData(
+      tableName: 'events',
+      columnName: 'id',
+      columnValue: eventId.toString(),
+    );
+    eventDataFutures.add(eventFuture.then((value) => value[0]));
+  }
+
+  return Future.wait(eventDataFutures);
+}
+
+
+
+
   Future<List<Map<String, dynamic>>> fetchData({
       required String tableName,
       required String columnName,
@@ -27,6 +80,22 @@ class DatabaseServices {
           .select()
           .eq(columnName, columnValue)
           .execute();
+      if (response.status == 200 && response.data != null) {
+        final data = response.data as List<dynamic>;
+        return data.map((e) => e as Map<String, dynamic>).toList();
+      } else {
+        return [];
+      }
+    }
+
+
+
+    // select all the data in the table 
+
+    Future<List<Map<String, dynamic>>> selectAllData({
+      required String tableName,
+    }) async {
+      final response = await client.from(tableName).select().execute();
       if (response.status == 200 && response.data != null) {
         final data = response.data as List<dynamic>;
         return data.map((e) => e as Map<String, dynamic>).toList();
@@ -51,6 +120,7 @@ class DatabaseServices {
       print('Data insertion failed');
     }
   }
+
 
 
 
