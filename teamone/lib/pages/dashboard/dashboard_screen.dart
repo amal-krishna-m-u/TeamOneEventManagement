@@ -29,7 +29,7 @@ class _DashboardState extends State<Dashboard> {
       case 'MyStats':
         return MyStats();
       case 'EmployeeManagement':
-        return EmpManaage();
+        return EmpManage();
       case 'BillHistory':
         return BillHistory();
       default:
