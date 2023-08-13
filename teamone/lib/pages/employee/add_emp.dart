@@ -21,8 +21,6 @@ class _MyEventsState extends State<MyEvents> {
 
   List<String> searchResult = [];
   List<String> events = [];
-    DatabaseServices db = DatabaseServices(client);
-  
 
   DateTime selectedDate = DateTime.now();
 
@@ -59,13 +57,6 @@ class _MyEventsState extends State<MyEvents> {
 
     setState(() {
       events = storedEvents ?? [];
-    });
-
-    // Fetch data from Supabase
-    final eventData = await db.selectAllData(tableName: 'events');
-    final eventNames = eventData.map((e) => e['event_name'] as String).toList();
-    setState(() {
-      events.addAll(eventNames);
     });
   }
 
@@ -399,7 +390,6 @@ class _MyEventsState extends State<MyEvents> {
   Future<void> handleDeleteEvent(String eventName) async {
     setState(() {
       events.remove(eventName);
-      db.deleteData(tableName: 'events', columnName:'event_name' , columnValue: eventName);
     });
     await saveEvents();
   }

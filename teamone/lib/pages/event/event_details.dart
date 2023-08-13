@@ -171,6 +171,10 @@ class _MyEventDetailsState extends State<MyEventsDetails> {
           FloatingActionButton.extended(
             backgroundColor: Colors.white,
             onPressed: () {
+
+
+
+              
               // Implement the logic to add or assign employees to the event
             },
             icon: Icon(Icons.person_add),

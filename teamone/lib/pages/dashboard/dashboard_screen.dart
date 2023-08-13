@@ -1,6 +1,7 @@
+import 'package:TeamOne/pages/employee/emp_manage.dart';
 import 'package:flutter/material.dart';
 import 'package:TeamOne/pages/bill_history.dart';
-import 'package:TeamOne/pages/manage_emp.dart';
+import 'package:TeamOne/pages/employee/emp_manage.dart';
 import 'package:TeamOne/pages/event/topics_screen.dart';
 import 'package:TeamOne/pages/stats_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -28,7 +29,7 @@ class _DashboardState extends State<Dashboard> {
       case 'MyStats':
         return MyStats();
       case 'EmployeeManagement':
-        return ManageEmp();
+        return EmpManaage();
       case 'BillHistory':
         return BillHistory();
       default:
