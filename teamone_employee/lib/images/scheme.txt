@@ -1,0 +1,14 @@
+
+
+In the above code, the color scheme used is as follows:
+
+- `backgroundColor` of the `Scaffold` is set to `Color(0xFFE5E5E5)`, which represents a light gray background color.
+- `backgroundColor` of the `SliverAppBar` is set to `Color(0xFF283747)`, which represents a dark blue color.
+- The text color in the `SliverAppBar` is set to `Colors.white`.
+- The search bar has a white background color (`Colors.white`) and a gray border color (`Colors.grey`).
+- The text color of the search bar is set to black (`Colors.black`).
+- The search result list items have a white background color (`Colors.white`) and black text color (`Colors.black`).
+- The shadow color used in the search bar and search result list items is `Colors.black.withOpacity(0.2)`.
+
+You can customize these color values according to your preferences by modifying the respective color codes in the code.
+use this color scheme
