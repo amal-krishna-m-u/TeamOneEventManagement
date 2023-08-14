@@ -48,7 +48,7 @@ class _EmpManageState extends State<EmpManage> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => EditEmployee()),
+                        MaterialPageRoute(builder: (context) =>EditEmployee()),
                       );
                       // Implement the logic to add or assign resources to the event
                     },

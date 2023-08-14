@@ -138,10 +138,84 @@ Widget build(BuildContext context) {
                         ),
                       );
                     }).toList(),
+                 
+                 
+
+
+                 
+                 
+                 
+                 
                   );
+                  
                 }
               },
             ),
+
+
+SizedBox(height: 30),
+
+    Text(
+      'All Assigned Work',
+      style: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    SizedBox(height: 20),
+    Text(
+      'Here you can see events assigned to you.',
+      style: TextStyle(
+        fontSize: 16,
+        color: Colors.grey[600],
+      ),
+    ),
+    SizedBox(height: 30),
+    FutureBuilder<List<Map<String, dynamic>>>(
+      future: db.fetchAssignedEvents(employeeId: employeeId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator(); // Display a loading indicator
+        } else if (snapshot.hasError) {
+          // Error message
+          return Text('Error: ${snapshot.error}');
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Text('No assigned event data available.');
+        } else {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: snapshot.data!.map((event) {
+              final eventName = event['event_name'];
+              final eventDate = event['event_date'];
+              final eventId = event['id'];
+              return Padding(
+                padding: EdgeInsets.only(left: 10, top: 10),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ViewDetails(
+                          eventId: eventId,
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Color(0xFF283747),
+                  ),
+                  child: Text('Event: $eventName || Date: $eventDate'),
+                ),
+              );
+            }).toList(),
+          );
+        }
+      },
+    ),
+
+
+
+
           ],
         ),
       ),

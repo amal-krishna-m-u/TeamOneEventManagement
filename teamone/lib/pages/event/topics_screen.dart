@@ -21,8 +21,8 @@ class _MyEventsState extends State<MyEvents> {
 
   List<String> searchResult = [];
   List<String> events = [];
-    DatabaseServices db = DatabaseServices(client);
-  
+  DatabaseServices db = DatabaseServices(client);
+  bool isLoading = true;
 
   DateTime selectedDate = DateTime.now();
 
@@ -57,15 +57,26 @@ class _MyEventsState extends State<MyEvents> {
     final prefs = await SharedPreferences.getInstance();
     final storedEvents = prefs.getStringList('events');
 
-    setState(() {
-      events = storedEvents ?? [];
-    });
-
     // Fetch data from Supabase
     final eventData = await db.selectAllData(tableName: 'events');
-    final eventNames = eventData.map((e) => e['event_name'] as String).toList();
+
+    final now = DateTime.now();
+    final eventNames =
+        eventData.map((e) => e['event_name'] as String).where((eventName) {
+      final eventDate = DateTime.parse(
+        eventData.firstWhere(
+          (e) => e['event_name'] == eventName,
+          orElse: () => {},
+        )['event_date'] as String,
+      );
+      return eventDate
+          .isAfter(removeTimeFromDate(now.subtract(Duration(days: 1))));
+    }).toList();
+
     setState(() {
-      events.addAll(eventNames);
+      events = eventNames; // Replace the events list with filtered event names
+      isLoading =
+          false; // Set isLoading to false when data fetching is complete
     });
   }
 
@@ -314,17 +325,16 @@ class _MyEventsState extends State<MyEvents> {
                 ),
                 onPressed: () async {
                   final insertResponse = await client.from('events').insert({
-  'event_name': eventName,
-  'event_place': place,
-  'participants': participants,
-  'no_of_employees': employees,
-  'event_management_team': eventManagementTeam,
-  'advance_amount': advanceAmount,
-  'total_amount': totalAmount,
-  'event_type': eventType,
-  'event_date': selectedDate.toIso8601String(),
-}).execute();
-
+                    'event_name': eventName,
+                    'event_place': place,
+                    'participants': participants,
+                    'no_of_employees': employees,
+                    'event_management_team': eventManagementTeam,
+                    'advance_amount': advanceAmount,
+                    'total_amount': totalAmount,
+                    'event_type': eventType,
+                    'event_date': selectedDate.toIso8601String(),
+                  }).execute();
 
                   if (insertResponse.status == 200) {
                     setState(() {
@@ -399,247 +409,265 @@ class _MyEventsState extends State<MyEvents> {
   Future<void> handleDeleteEvent(String eventName) async {
     setState(() {
       events.remove(eventName);
-      db.deleteData(tableName: 'events', columnName:'event_name' , columnValue: eventName);
+      db.deleteData(
+          tableName: 'events',
+          columnName: 'event_name',
+          columnValue: eventName);
     });
     await saveEvents();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFFE5E5E5),
-      appBar: AppBar(
-        backgroundColor: Color(0xFF283747),
-        title: Text(
-          'Events & Reminders',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        iconTheme: IconThemeData(
-          color: Colors.white,
-        ),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 6,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    child: Icon(
-                      Icons.search,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  Expanded(
-                    child: TextField(
-                      controller: searchController,
-                      onChanged: (value) {
-                        searchEvents(value);
-                      },
-                      style: TextStyle(color: Colors.black),
-                      decoration: InputDecoration(
-                        hintText: 'Find Events',
-                        hintStyle: TextStyle(
-                          color: Colors.grey,
-                        ),
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      searchEvents(searchController.text);
-                    },
-                    child: Icon(
-                      Icons.send_rounded,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                ],
-              ),
+    final ColorScheme colorScheme = ColorScheme.light(
+      primary: Color(0xFF283747),
+      secondary: Colors.white,
+    );
+
+    return Theme(
+      data: ThemeData.from(colorScheme: colorScheme),
+      child: Scaffold(
+        backgroundColor: Color(0xFFE5E5E5),
+        appBar: AppBar(
+          backgroundColor: Color(0xFF283747),
+          title: Text(
+            'Events & Reminders',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          if (searchController.text.isEmpty)
-            Expanded(
-              child: ListView.builder(
-                itemCount: events.length,
-                itemBuilder: (context, index) {
-                  final eventName = events[index];
-                  final isAdded = isEventAdded(eventName);
-
-                  return Padding(
-                    padding: const EdgeInsets.only(
-                        bottom: 8.0, left: 20.0, right: 20.0, top: 8.0),
-                    child: Dismissible(
-                      key: Key(eventName),
-                      direction: DismissDirection.endToStart,
-                      background: Container(
-                        color: Colors.red,
-                        alignment: Alignment.centerRight,
-                        padding: EdgeInsets.only(right: 16.0),
-                        child: Icon(
-                          Icons.delete,
-                          color: Colors.white,
-                        ),
-                      ),
-                      onDismissed: (direction) {
-                        handleDeleteEvent(eventName);
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: ListTile(
-                          title: Text(
-                            eventName,
-                            style: TextStyle(
-                              color: Colors.black,
-                            ),
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  if (isAdded) {
-                                    navigateToEvent(eventName);
-                                  } else {
-                                    handleAddEvent(eventName);
-                                  }
-                                },
-                                child: Text(
-                                  isAdded ? 'View' : 'Add',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                    isAdded ? Colors.blue : Colors.green,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 8),
-                              if (isAdded)
-                                GestureDetector(
-                                  onTap: () {
-                                    handleDeleteEvent(eventName);
-                                  },
-                                  child: Icon(
-                                    Icons.delete,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            )
-          else
-            Expanded(
-              child: ListView.builder(
-                itemCount: searchResult.length,
-                itemBuilder: (context, index) {
-                  final eventName = searchResult[index];
-                  final isAdded = isEventAdded(eventName);
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 8.0, horizontal: 20.0),
+          iconTheme: IconThemeData(
+            color: Colors.white,
+          ),
+        ),
+        body: isLoading
+            ? Center(
+                child:
+                    CircularProgressIndicator(), // Show loader while fetching data
+              )
+            : Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
                     child: Container(
                       decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 4,
-                            offset: Offset(0, 2),
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 6,
+                            offset: Offset(0, 3),
                           ),
                         ],
                       ),
-                      child: ListTile(
-                        title: Text(
-                          eventName,
-                          style: TextStyle(
-                            color: Colors.black,
+                      child: Row(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: Icon(
+                              Icons.search,
+                              color: Colors.grey,
+                            ),
                           ),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                if (isAdded) {
-                                  navigateToEvent(eventName);
-                                } else {
-                                  handleAddEvent(eventName);
-                                }
+                          Expanded(
+                            child: TextField(
+                              controller: searchController,
+                              onChanged: (value) {
+                                searchEvents(value);
                               },
-                              child: Text(
-                                isAdded ? 'View' : 'Add',
-                                style: TextStyle(
+                              style: TextStyle(color: Colors.black),
+                              decoration: InputDecoration(
+                                hintText: 'Find Events',
+                                hintStyle: TextStyle(
+                                  color: Colors.grey,
+                                ),
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              searchEvents(searchController.text);
+                            },
+                            child: Icon(
+                              Icons.send_rounded,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (searchController.text.isEmpty)
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: events.length,
+                        itemBuilder: (context, index) {
+                          final eventName = events[index];
+                          final isAdded = isEventAdded(eventName);
+
+                          return Padding(
+                            padding: const EdgeInsets.only(
+                                bottom: 8.0, left: 20.0, right: 20.0, top: 8.0),
+                            child: Dismissible(
+                              key: Key(eventName),
+                              direction: DismissDirection.endToStart,
+                              background: Container(
+                                color: Colors.red,
+                                alignment: Alignment.centerRight,
+                                padding: EdgeInsets.only(right: 16.0),
+                                child: Icon(
+                                  Icons.delete,
                                   color: Colors.white,
                                 ),
                               ),
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                  isAdded ? Colors.blue : Colors.green,
+                              onDismissed: (direction) {
+                                handleDeleteEvent(eventName);
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 4,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: ListTile(
+                                  title: Text(
+                                    eventName,
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          if (isAdded) {
+                                            navigateToEvent(eventName);
+                                          } else {
+                                            handleAddEvent(eventName);
+                                          }
+                                        },
+                                        child: Text(
+                                          isAdded ? 'View' : 'Add',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                            isAdded
+                                                ? Colors.blue
+                                                : Colors.green,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(width: 8),
+                                      if (isAdded)
+                                        GestureDetector(
+                                          onTap: () {
+                                            handleDeleteEvent(eventName);
+                                          },
+                                          child: Icon(
+                                            Icons.delete,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                            SizedBox(width: 8),
-                            if (isAdded)
-                              GestureDetector(
-                                onTap: () {
-                                  handleDeleteEvent(eventName);
-                                },
-                                child: Icon(
-                                  Icons.delete,
-                                  color: Colors.black,
+                          );
+                        },
+                      ),
+                    )
+                  else
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: searchResult.length,
+                        itemBuilder: (context, index) {
+                          final eventName = searchResult[index];
+                          final isAdded = isEventAdded(eventName);
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 20.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 4,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: ListTile(
+                                title: Text(
+                                  eventName,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        if (isAdded) {
+                                          navigateToEvent(eventName);
+                                        } else {
+                                          handleAddEvent(eventName);
+                                        }
+                                      },
+                                      child: Text(
+                                        isAdded ? 'View' : 'Add',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all<Color>(
+                                          isAdded ? Colors.blue : Colors.green,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 8),
+                                    if (isAdded)
+                                      GestureDetector(
+                                        onTap: () {
+                                          handleDeleteEvent(eventName);
+                                        },
+                                        child: Icon(
+                                          Icons.delete,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ),
-                          ],
-                        ),
+                            ),
+                          );
+                        },
                       ),
                     ),
-                  );
-                },
+                ],
               ),
-            ),
-        ],
       ),
     );
   }

@@ -20,6 +20,7 @@ class info_outline extends StatefulWidget {
 class _info_outlineState extends State<info_outline> {
   final client = SupabaseClient(supabaseUrl, supabaseKey);
   List<Map<String, dynamic>> tableData = [];
+  bool isLoading = true;
 
   List<String> events = [];
   List<String> places = [];
@@ -57,6 +58,8 @@ class _info_outlineState extends State<info_outline> {
         .eq('event_name', name) // Add the condition for name
         .limit(1) // Limit the result to 1 row
         .execute();
+
+    print('Response data: ${response.data}');
 
     if (response.data != null) {
       final data = response.data as List<dynamic>;
@@ -103,6 +106,10 @@ class _info_outlineState extends State<info_outline> {
       // Handle error
       print('Error fetching events from Supabase: ${response.data.toString()}');
     }
+    setState(() {
+      isLoading =
+          false; // Set isLoading to false when data fetching is complete
+    });
   }
 
   @override
@@ -121,36 +128,43 @@ class _info_outlineState extends State<info_outline> {
           ),
         ),
       ),
-      body: ListView.builder(
-        itemCount: 1,
-        itemBuilder: (context, index) {
-          final item = tableData[0];
-          return ListBody(
-            children: [
-              ListTile(
-                title: Text('Event Name:     ${item['eventname']}'),
-                subtitle: Text('Date:    ${item['date']}'),
-              ),
-              Divider(),
-              ListTile(
-                title: Text('EVENT MANAGEMENT TEAM:     ${item['event_team']}'),
-                subtitle: Text('EVENT TYPE:     ${item['event_type']}'),
-              ),
-              Divider(),
-              ListTile(
-                title: Text('PLACE :      ${item['place']}'),
-                subtitle: Text('PARTICIPANTS :           ${item['participants'].toString()}'), // Use 'participants' instead of 'number_participants'
-              ),
-              Divider(),
-              ListTile(
-                title: Text('EMPLOYEES :      ${item['employees']
-                    .toString()}'), // Use 'employees' instead of 'no_of_employees'
-              ),
-              Divider(),
-            ],
-          );
-        },
-      ),
+      body: isLoading
+          ? Center(
+              child:
+                  CircularProgressIndicator(), // Show loader while fetching data
+            )
+          : ListView.builder(
+              itemCount: 1,
+              itemBuilder: (context, index) {
+                final item = tableData[0];
+                return ListBody(
+                  children: [
+                    ListTile(
+                      title: Text('Event Name:     ${item['eventname']}'),
+                      subtitle: Text('Date:    ${item['date']}'),
+                    ),
+                    Divider(),
+                    ListTile(
+                      title: Text(
+                          'EVENT MANAGEMENT TEAM:     ${item['event_team']}'),
+                      subtitle: Text('EVENT TYPE:     ${item['event_type']}'),
+                    ),
+                    Divider(),
+                    ListTile(
+                      title: Text('PLACE :      ${item['place']}'),
+                      subtitle: Text(
+                          'PARTICIPANTS :           ${item['participants'].toString()}'), // Use 'participants' instead of 'number_participants'
+                    ),
+                    Divider(),
+                    ListTile(
+                      title: Text(
+                          'EMPLOYEES :      ${item['employees'].toString()}'), // Use 'employees' instead of 'no_of_employees'
+                    ),
+                    Divider(),
+                  ],
+                );
+              },
+            ),
     );
   }
 }

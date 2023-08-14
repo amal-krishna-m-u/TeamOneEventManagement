@@ -13,7 +13,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MyEventsDetails extends StatefulWidget {
   final String eventName;
-  
+
   const MyEventsDetails({Key? key, required this.eventName}) : super(key: key);
 
   @override
@@ -23,6 +23,7 @@ class MyEventsDetails extends StatefulWidget {
 class _MyEventDetailsState extends State<MyEventsDetails> {
   final client = SupabaseClient(supabaseUrl, supabaseKey);
   List<Map<String, dynamic>> tableData = [];
+  bool isLoading = true;
 
   List<String> events = [];
   List<String> places = [];
@@ -34,9 +35,7 @@ class _MyEventDetailsState extends State<MyEventsDetails> {
   List<String> payment_completed = [];
   List<String> date = [];
   List<String> event_type = [];
-  List<String>event_team = [];
-
-
+  List<String> event_team = [];
 
   @override
   void initState() {
@@ -51,7 +50,26 @@ class _MyEventDetailsState extends State<MyEventsDetails> {
 
     fetchEventsFromSupabase();
   }
-  
+
+
+
+
+Future <void> updateAssign() async {
+  DatabaseServices db = DatabaseServices(client);
+  final response = await client
+        .from('assign')
+        .delete()
+        .eq('emp_id',null)
+        .execute();
+    if (response.status == 200) {
+      print('Data deleted successfully');
+    } else {
+      print('Data deletion failed');
+    }
+
+}
+
+
 
   Future<void> fetchEventsFromSupabase() async {
     String name = widget.eventName;
@@ -78,11 +96,10 @@ class _MyEventDetailsState extends State<MyEventsDetails> {
               'event_completed': event['event_completed'].toString(),
               'payment_received': event['payment_received'].toString(),
               'payment_completed': event['payment_completed'].toString(),
-              'date': DateFormat('dd-MM-yyyy')
-                  .format(DateTime.parse(event['event_date']?.toString() ?? '')),
+              'date': DateFormat('dd-MM-yyyy').format(
+                  DateTime.parse(event['event_date']?.toString() ?? '')),
               'event_type': event['event_type']?.toString() ?? '',
               'event_team': event['event_management_team']?.toString() ?? '',
-
             }
           ];
         });
@@ -100,13 +117,16 @@ class _MyEventDetailsState extends State<MyEventsDetails> {
           date = [];
           event_type = [];
           event_team = [];
-          
         });
       }
     } else {
       // Handle error
       print('Error fetching events from Supabase: ${response.data.toString()}');
     }
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -117,13 +137,12 @@ class _MyEventDetailsState extends State<MyEventsDetails> {
         actions: [
           IconButton(
             onPressed: () {
-            Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => info_outline(event: widget.eventName),
-  ),
-);
-
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => info_outline(event: widget.eventName),
+                ),
+              );
 
               // Navigate to a separate screen to display event details
             },
@@ -131,41 +150,49 @@ class _MyEventDetailsState extends State<MyEventsDetails> {
           ),
         ],
       ),
-      body: ListView(
-        children: [
-          MyTimeLineTile(
-              isFirst: true,
-              isLast: false,
-              isPast: true,
-              eventCard: Text("Event Created"),
-              heroIndex: 1),
-          MyTimeLineTile(
-            isFirst: false,
-            isLast: false,
-            isPast: tableData[0]['event_started'] == '1' ? true : false,
-            eventCard: Text('Event Started'),
-            heroIndex: 2,
-          ),
-          MyTimeLineTile(
-              isFirst: false,
-              isLast: false,
-              isPast: tableData[0]['event_completed'] == '1' ? true : false,
-              eventCard: Text('Event  Completed'),
-              heroIndex: 3),
-          MyTimeLineTile(
-              isFirst: false,
-              isLast: false,
-              isPast: tableData[0]['payment_received'] == '1' ? true : false,
-              eventCard: Text('Payment Recieved from Client'),
-              heroIndex: 4),
-          MyTimeLineTile(
-              isFirst: false,
-              isLast: true,
-              isPast: tableData[0]['payment_completed'] == '1' ? true : false,
-              eventCard: Text("Payment Completed to Employees"),
-              heroIndex: 5),
-        ],
-      ),
+      body: isLoading
+          ? Center(
+              child:
+                  CircularProgressIndicator(), // Show loader while fetching data
+            )
+          : ListView(
+              children: [
+                MyTimeLineTile(
+                    isFirst: true,
+                    isLast: false,
+                    isPast: true,
+                    eventCard: Text("Event Created"),
+                    heroIndex: 1),
+                MyTimeLineTile(
+                  isFirst: false,
+                  isLast: false,
+                  isPast: tableData[0]['event_started'] == '1' ? true : false,
+                  eventCard: Text('Event Started'),
+                  heroIndex: 2,
+                ),
+                MyTimeLineTile(
+                    isFirst: false,
+                    isLast: false,
+                    isPast:
+                        tableData[0]['event_completed'] == '1' ? true : false,
+                    eventCard: Text('Event  Completed'),
+                    heroIndex: 3),
+                MyTimeLineTile(
+                    isFirst: false,
+                    isLast: false,
+                    isPast:
+                        tableData[0]['payment_received'] == '1' ? true : false,
+                    eventCard: Text('Payment Recieved from Client'),
+                    heroIndex: 4),
+                MyTimeLineTile(
+                    isFirst: false,
+                    isLast: true,
+                    isPast:
+                        tableData[0]['payment_completed'] == '1' ? true : false,
+                    eventCard: Text("Payment Completed to Employees"),
+                    heroIndex: 5),
+              ],
+            ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -174,20 +201,20 @@ class _MyEventDetailsState extends State<MyEventsDetails> {
             onPressed: () {
 
 
-Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => AssignEmp(eventName: widget.eventName),
-  ),
-);
-              
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AssignEmp(eventName: widget.eventName),
+                ),
+              );
+
               // Implement the logic to add or assign employees to the event
             },
             icon: Icon(Icons.person_add),
             label: Text('Assign Employee'),
           ),
           SizedBox(height: 10),
-          FloatingActionButton.extended(
+         /* FloatingActionButton.extended(
             //error thrown here
             backgroundColor: Colors.white,
             onPressed: () {
@@ -195,7 +222,7 @@ Navigator.push(
             },
             icon: Icon(Icons.inventory),
             label: Text('Assign Resources'),
-          ),
+          ),*/
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

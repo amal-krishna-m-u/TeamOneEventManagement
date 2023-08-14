@@ -17,6 +17,35 @@ class DatabaseServices {
 
 //fetch data 
 
+Future<List<Map<String, dynamic>>> fetchAssignedEvents({required int? employeeId}) async {
+  final response = await client
+      .from('assign')
+      .select('event_id')
+      .eq('emp_id', employeeId)
+      .execute();
+
+  if (response.status != 200) {
+    throw response.status;
+  }
+
+  final assignedEvents = (response.data as List<dynamic>).cast<Map<String, dynamic>>();
+
+  final eventIds = assignedEvents.map<int>((event) => event['event_id'] as int).toList();
+
+  final eventResponse = await client
+      .from('events')
+      .select()
+      .in_('id', eventIds)
+      .execute();
+
+  if (eventResponse.status!= 200) {
+    throw eventResponse.status;
+  }
+
+  return (eventResponse.data as List<dynamic>).cast<Map<String, dynamic>>();
+}
+
+
 
 Future<List<Map<String, dynamic>>> fetchJoinData({
   required String tableName,
