@@ -1,4 +1,5 @@
 import 'package:TeamOne/pages/components/my_timeline_tile.dart';
+import 'package:TeamOne/pages/employee/add_emp.dart';
 import 'package:TeamOne/pages/event/info_outline.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -173,7 +174,12 @@ class _MyEventDetailsState extends State<MyEventsDetails> {
             onPressed: () {
 
 
-
+Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => AssignEmp(eventName: widget.eventName),
+  ),
+);
               
               // Implement the logic to add or assign employees to the event
             },

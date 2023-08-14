@@ -47,10 +47,17 @@ class _ApproveEmpState extends State<ApproveEmp> {
                     return Center(child: Text('No events found.'));
                   } else {
                     final eventData = snapshot.data!;
+                    final currentDate = DateTime.now();
+                    final upcomingAndTodayEvents = eventData.where((event) {
+                      final eventDate = DateTime.parse(event['event_date']);
+                      return eventDate.isAfter(currentDate) ||
+                          eventDate.day == currentDate.day;
+                    }).toList();
+
                     return ListView.builder(
-                      itemCount: eventData.length,
+                      itemCount: upcomingAndTodayEvents.length,
                       itemBuilder: (context, index) {
-                        final event = eventData[index];
+                        final event = upcomingAndTodayEvents[index];
                         return Container(
                           margin: EdgeInsets.all(10),
                           padding: EdgeInsets.all(10),
@@ -69,7 +76,8 @@ class _ApproveEmpState extends State<ApproveEmp> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => SelectEmp(eventId: event['id']),
+                                  builder: (context) =>
+                                      SelectEmp(eventId: event['id']),
                                 ),
                               );
                             },
