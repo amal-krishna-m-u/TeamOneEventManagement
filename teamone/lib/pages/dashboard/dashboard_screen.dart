@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:TeamOne/services/supabase_config.dart';
 import 'package:TeamOne/services/supabase_client.dart';
 import 'package:TeamOne/main.dart';
+import 'package:TeamOne/pages/bill/bill.dart';
 
 import '../auth/login_screen.dart';
 
@@ -27,7 +28,7 @@ class _DashboardState extends State<Dashboard> {
       case 'MyEvents':
         return MyEvents();
       case 'MyStats':
-        return MyStats();
+        return Bills();
       case 'EmployeeManagement':
         return EmpManage();
       case 'BillHistory':
