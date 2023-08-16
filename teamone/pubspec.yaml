@@ -40,6 +40,7 @@ dependencies:
   intl: ^0.17.0
   another_flushbar: ^1.12.30
   upi_india: ^3.0.1
+  printing: ^5.11.0
 
 
 
@@ -100,5 +101,10 @@ flutter:
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
   #
+  fonts:
+    - family: NotoSans
+      fonts:
+        - asset: assets/NotoSans-Regular.ttf
+
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

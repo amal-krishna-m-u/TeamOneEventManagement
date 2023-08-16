@@ -62,24 +62,47 @@ class _DisplayEmpBillState extends State<DisplayEmpBill> {
     isLoaging = false;
   }
 
-  Future<void> fetchLastBillNumber() async {
-    try {
-      // Simulate fetching the last payment entry
-      final lastPaymentEntry = await fetchLastPaymentEntry();
-      if (lastPaymentEntry != null) {
-        setState(() {
-          billNo = lastPaymentEntry['id'] + 1;
-        });
-      }
-    } catch (error) {
-      print('Error fetching last bill number: $error');
-    }
-  }
-
-  Future<Map<String, dynamic>?> fetchLastPaymentEntry() async {
+ Future<void> fetchLastBillNumber() async {
+  try {
     // Simulate fetching the last payment entry
-    return {'id': 10}; // Replace with your actual logic
+    final lastPaymentEntry = await fetchLastPaymentEntry(widget.employeeId, widget.eventId);
+    if (lastPaymentEntry != null) {
+      setState(() {
+        billNo = lastPaymentEntry + 1;
+      });
+    } else {
+      setState(() {
+        billNo = 0; // If no entry found, set bill number to 0
+      });
+    }
+  } catch (error) {
+    print('Error fetching last bill number: $error');
   }
+}
+
+
+  Future<int> fetchLastPaymentEntry(int userId, int eventId) async {
+   // Initialize your Supabase client
+  final response = await client
+      .from('payment')
+      .select('Bill_no')
+      .eq('emp_id', userId)
+      .order('id', ascending: false)
+      .limit(1)
+      .execute();
+  
+  if (response.status != 200) {
+    throw response;
+  }
+  
+  final data = response.data as List<dynamic>;
+  
+  if (data.isNotEmpty) {
+    return data[0]['Bill_no'] as int;
+  } else {
+    return 0; // If no entry found, set bill number to 0
+  }
+}
 
   @override
   void dispose() {
@@ -200,10 +223,7 @@ class _DisplayEmpBillState extends State<DisplayEmpBill> {
             Spacer(),
             ElevatedButton(
               onPressed: () {
-billed();
-
-
-
+                // Navigate to MakePayment page
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -211,11 +231,23 @@ billed();
                       eventId: widget.eventId,
                       employeeId: widget.employeeId,
                       billNo: billNo,
+                      amount:salaryController.text
                     ),
                   ),
                 );
               },
-              child: Text('Confirm Bill'),
+              child: Text('Make Payment'),
+            ),
+
+            ElevatedButton(
+              onPressed: () async {
+                // Call the billed function
+                await billed();
+
+                // Navigate back to the previous page
+                Navigator.pop(context);
+              },
+              child: Text('Create Bill and Go Back'),
             ),
           ],
         ),
@@ -234,6 +266,11 @@ final Response = await db.insertData(tableName: 'payment', data: {
 
 
 });
+
+
+
+
+
 
 
 

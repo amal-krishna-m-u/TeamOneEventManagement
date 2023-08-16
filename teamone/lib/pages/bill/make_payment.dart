@@ -9,11 +9,12 @@ class MakePayment extends StatefulWidget {
   final int eventId;
   final int employeeId;
   final int? billNo;
+  final String amount;
 
   MakePayment({
     required this.eventId,
     required this.employeeId,
-    required this.billNo,
+    required this.billNo, required this.amount,
   });
 
   @override
@@ -89,7 +90,9 @@ class _MakePaymentState extends State<MakePayment> {
         columnName: 'Bill_no',
         columnValue: '${widget.billNo}',
       );
-      _amountController.text = paymentDetails.isNotEmpty ? paymentDetails[0]['amount'].toString() : '';
+     // _amountController.text = paymentDetails.isNotEmpty ? paymentDetails[0]['amount'].toString() : '';
+    _amountController.text = widget.amount;
+    
     } catch (error) {
       print('Error fetching payment details: $error');
     }

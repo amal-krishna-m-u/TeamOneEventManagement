@@ -1,3 +1,4 @@
+import 'package:TeamOne/pages/dashboard/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:TeamOne/pages/bill/display_pending_bill_client.dart';
 import 'package:TeamOne/pages/bill/display_pending.dart';
@@ -82,6 +83,38 @@ class _DisplayPendingBillsEmpState extends State<DisplayPendingBillsEmp> {
                 },
               )
             : Center(child: Text('No pending bills for employees.')),
+     
+             bottomNavigationBar: BottomNavigationBar(
+          currentIndex: 0,
+          items: [
+            // Placeholder item for Generate Bill
+            BottomNavigationBarItem(
+              icon: Icon(Icons.pending_actions),
+              label: 'Pending bills',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard),
+              label: 'Dashboard',
+            ),
+          ],
+          onTap: (index) {
+            if (index == 1) {
+              // Navigate to the Dashboard class
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => Dashboard()),
+              );
+            }
+          },
+        ),
+     
+     
+     
+     
+     
+     
+     
+     
       ),
     );
   }
