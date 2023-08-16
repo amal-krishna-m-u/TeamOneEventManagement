@@ -11,7 +11,9 @@ class BillHistory extends StatefulWidget {
 
 class _BillHistoryState extends State<BillHistory> {
   DatabaseServices db = DatabaseServices(client);
-  List<Map<String, dynamic>> paymentDetails = [];
+  List<Map<String, dynamic>> employeePaymentDetails = [];
+  List<Map<String, dynamic>> clientPaymentDetails = [];
+  bool showEmployeeBills = true;
 
   @override
   void initState() {
@@ -23,7 +25,12 @@ class _BillHistoryState extends State<BillHistory> {
     try {
       final payments = await db.fetchPaymentDetails();
       setState(() {
-        paymentDetails = payments;
+        employeePaymentDetails = payments
+            .where((payment) => payment['employee_details'] != null)
+            .toList();
+        clientPaymentDetails = payments
+            .where((payment) => payment['employee_details'] == null)
+            .toList();
       });
     } catch (error) {
       print('Error fetching payment details: $error');
@@ -43,50 +50,96 @@ class _BillHistoryState extends State<BillHistory> {
         appBar: AppBar(
           title: Text('Bill History'),
         ),
-        body: paymentDetails.isNotEmpty
-            ? ListView.builder(
-                itemCount: paymentDetails.length,
-                itemBuilder: (context, index) {
-                  final payment = paymentDetails[index];
-                  final employee = payment['employee_details'] as Map<String, dynamic>;
-                  final event = payment['event_details'] as Map<String, dynamic>;
-
-                  return Container(
-                    padding: EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Theme.of(context).dividerColor,
-                        ),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Payment Amount: ${payment['amount']}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Text('Payment Date: ${payment['payment_date']}'),
-                        SizedBox(height: 4),
-                        Text('Employee Name: ${employee['name']}'),
-                        SizedBox(height: 4),
-                        Text('Event Name: ${event['event_name']}'),
-                        SizedBox(height: 4),
-                        Text('Event Date: ${event['event_date']}'),
-                        SizedBox(height: 4),
-                        Text('Event place: ${event['event_place']}'),
-                      ],
-                    ),
-                  );
-                },
-              )
-            : Center(child: Text('No payment history available.')),
+        body: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      showEmployeeBills = true;
+                    });
+                  },
+                  child: Text('Employee Bills'),
+                ),
+                SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      showEmployeeBills = false;
+                    });
+                  },
+                  child: Text('Client Bills'),
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+            Expanded(
+              child: showEmployeeBills
+                  ? _buildBillList(employeePaymentDetails)
+                  : _buildBillList(clientPaymentDetails),
+            ),
+          ],
+        ),
       ),
     );
   }
+Widget _buildBillList(List<Map<String, dynamic>> paymentDetails) {
+  return paymentDetails.isNotEmpty
+      ? ListView.builder(
+          itemCount: paymentDetails.length,
+          itemBuilder: (context, index) {
+            final payment = paymentDetails[index];
+            final event = payment['event_details'] as Map<String, dynamic>?;
+
+            return Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: Theme.of(context).dividerColor,
+                  ),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Payment Amount: ${payment['amount']}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text('Payment Date: ${payment['payment_date']}'),
+                  if (payment['is_employee_payment'] == true) ...[
+                    SizedBox(height: 4),
+                    if (payment['employee_details'] != null)
+                      Text('Employee Name: ${payment['employee_details']['name']}'),
+                    if (event != null) ...[
+                      SizedBox(height: 4),
+                      Text('Event Name: ${event['event_name']}'),
+                      SizedBox(height: 4),
+                      Text('Event Date: ${event['event_date']}'),
+                    ],
+                  ] else ...[
+                    if (payment['client_name'] != null)
+                      SizedBox(height: 4),
+                      Text('Client Name: ${payment['client_name']}'),
+                    if (event != null) ...[
+                      SizedBox(height: 4),
+                      Text('Event Name: ${event['event_name']}'),
+                      SizedBox(height: 4),
+                      Text('Event Date: ${event['event_date']}'),
+                    ],
+                  ],
+                ],
+              ),
+            );
+          },
+        )
+      : Center(child: Text('No payment history available.'));
+}
 }

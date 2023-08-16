@@ -15,6 +15,68 @@ class DatabaseServices {
 
 
 
+
+ Future<Map<String, dynamic>?> fetchEmployeeDetailsWithUserId(String userId) async {
+    final response = await client
+        .from('employee')
+        .select()
+        .eq('userid', userId)
+        .execute();
+
+    if (response.status == 200 && response.data != null) {
+      final data = response.data as List<dynamic>;
+      if (data.isNotEmpty) {
+        return data[0] as Map<String, dynamic>;
+      }
+    }
+    return null;
+  }
+
+
+
+
+Future<List<Map<String, dynamic>>> fetchUserPaymentDetails(int empId) async {
+  final response = await client
+      .from('payment')
+      .select('id, emp_id, event_id, amount, payment_date, mode_of_payment, Bill_no')
+      .eq('emp_id', empId)
+      .execute();
+
+  if (response.status == 200 && response.data != null) {
+    final paymentData = response.data as List<dynamic>;
+    final paymentDetails = paymentData.cast<Map<String, dynamic>>();
+
+    final eventIds = paymentDetails.map<int>((payment) => payment['event_id'] as int).toList();
+
+    final eventResponse = await client
+        .from('events')
+        .select()
+        .in_('id', eventIds)
+        .execute();
+
+    if (eventResponse.status == 200) {
+      final eventData = eventResponse.data as List<dynamic>;
+      final eventDetails = eventData.cast<Map<String, dynamic>>();
+      
+      // Match event details to payment details
+      for (final payment in paymentDetails) {
+        final eventId = payment['event_id'] as int;
+        final matchingEvent = eventDetails.firstWhere((event) => event['id'] == eventId);
+        payment['event_details'] = matchingEvent;
+      }
+
+      return paymentDetails;
+    }
+  }
+  
+  return []; // Return an empty list in case of any error or no data
+}
+
+
+
+
+
+
 //fetch data 
 
 Future<List<Map<String, dynamic>>> fetchAssignedEvents({required int? employeeId}) async {
