@@ -7,14 +7,16 @@ import android.widget.Toast
 
 class MainActivity : FlutterActivity() {
 
-    private val CHANNEL = "com.example.signuptoast"
-    private val CHANNEL1 = "com.example.signuptoast" // Rename to CHANNEL1 or a more meaningful name if needed
+    private val CHANNEL_SIGNUP_TOAST = "com.example.signuptoast"
+    private val CHANNEL_LOGIN_SUCCESS = "com.example.signuptoast"
+    private val CHANNEL_SIGNUP_FAILURE_TOAST = "com.example.signuptoast" // Add a new channel for signup failure
+    private val CHANNEL_LOGIN_FAILURE_TOAST = "com.example.signuptoast" // Add a new channel for signup failure
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
         // Method Channel for showing sign up success toast
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_SIGNUP_TOAST).setMethodCallHandler { call, result ->
             if (call.method == "showSignupSuccessToast") {
                 showSignupSuccessToast()
                 result.success(null)
@@ -24,7 +26,7 @@ class MainActivity : FlutterActivity() {
         }
 
         // Method Channel for handling successful login
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL1).setMethodCallHandler { call, result ->
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_LOGIN_SUCCESS).setMethodCallHandler { call, result ->
             if (call.method == "successfulLogin") {
                 // Handle the successful login action here
                 showToast("Login Successful")
@@ -33,11 +35,51 @@ class MainActivity : FlutterActivity() {
                 result.notImplemented()
             }
         }
+
+        // Method Channel for showing sign up failure toast
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_SIGNUP_FAILURE_TOAST).setMethodCallHandler { call, result ->
+            if (call.method == "showSignupFailureToast") {
+                showSignupFailureToast()
+                result.success(null)
+            } else {
+                result.notImplemented()
+            }
+        }
+
+        // method channel for showing login failur toast
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_LOGIN_FAILURE_TOAST).setMethodCallHandler { call, result ->
+            if (call.method == "showLoginFailureToast") {
+                showLoginFailureToast()
+                result.success(null)
+            } else {
+                result.notImplemented()
+            }
+        }
+
+
+
+
+
+
     }
 
     private fun showSignupSuccessToast() {
         runOnUiThread {
             Toast.makeText(applicationContext, "Sign Up Successful", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showSignupFailureToast() {
+        runOnUiThread {
+            Toast.makeText(applicationContext, "Sign Up Failed,invalid email,password", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+
+     private fun showLoginFailureToast() {
+        runOnUiThread {
+            Toast.makeText(applicationContext, "Login Failed,invalid email,password", Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:teamone_employee/pages/dashboard/dashboard_screen.dart';
 import 'package:teamone_employee/pages/auth/login_screen.dart';
 import 'package:supabase/supabase.dart';
@@ -225,15 +226,32 @@ class AuthServices {
 
   AuthServices(this.client);
 
+  Future<void> showLoginFailureToast() async {
+    try {
+      await platform
+          .invokeMethod('showLoginFailureToast'); // Use the correct method name
+    } catch (e) {
+      print('Error invoking method: $e');
+    }
+  }
+
+static const platform = MethodChannel('com.example.signuptoast');
   Future<void> signInUser({
     required String userEmail,
     required String userPassword,
     required BuildContext context, // Add BuildContext parameter
   }) async {
+
+
+//try { 
     await client.auth.signInWithPassword(
       email: userEmail,
       password: userPassword,
     );
+  //      }                               catch (error) {
+    //                            showLoginFailureToast();
+      //                          print('Login failed: $error');
+        //                      }
 
     // Start listening to auth state changes after signing in
     listernToAuthStatus(context);
