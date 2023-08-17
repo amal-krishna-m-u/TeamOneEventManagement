@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:TeamOne/pages/dashboard/dashboard_screen.dart';
 import 'package:TeamOne/pages/auth/register_screen.dart';
+import 'package:flutter/services.dart';
 import 'package:supabase/supabase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:TeamOne/services/supabase_config.dart';
@@ -22,21 +23,33 @@ class _MyLoginState extends State<MyLogin> {
 
   AuthServices authServices = AuthServices(client);
 
+  static const platform = MethodChannel('com.example.signuptoast');
 
+  Future<void> handleSuccessfulLogin() async {
+    try {
+      await platform.invokeMethod('successfulLogin');
+    } catch (e) {
+      print('Error invoking method: $e');
+    }
+  }
+
+  Future<void> showLoginFailureToast() async {
+    try {
+      await platform
+          .invokeMethod('showLoginFailureToast'); // Use the correct method name
+    } catch (e) {
+      print('Error invoking method: $e');
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-        if(authServices.isLoggedin()){
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Dashboard()));
+    if (authServices.isLoggedin()) {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => Dashboard()));
     }
-    
   }
-
- 
-
-  
-
 
   @override
   void dispose() {
@@ -44,6 +57,7 @@ class _MyLoginState extends State<MyLogin> {
     _passwordController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -123,7 +137,9 @@ class _MyLoginState extends State<MyLogin> {
                             });
                           },
                           icon: Icon(
-                            _showPassword ? Icons.visibility : Icons.visibility_off,
+                            _showPassword
+                                ? Icons.visibility
+                                : Icons.visibility_off,
                           ),
                         ),
                       ),
@@ -147,11 +163,18 @@ class _MyLoginState extends State<MyLogin> {
                         ),
                         CircleAvatar(
                           radius: 30,
-
                           backgroundColor: Color(0xff4c505b),
                           child: IconButton(
                             onPressed: () {
-                              authServices.signInUser(userEmail: _emailController.text, userPassword: _passwordController.text, context: context);
+                           
+                                authServices.signInUser(
+                                    userEmail: _emailController.text,
+                                    userPassword: _passwordController.text,
+                                    context: context);
+                      
+                                handleSuccessfulLogin();
+                              
+                              
                             },
                             color: Colors.white,
                             icon: Icon(Icons.arrow_forward_ios),
@@ -183,7 +206,7 @@ class _MyLoginState extends State<MyLogin> {
                             ),
                           ),
                         ),
-                        TextButton(
+                        /*   TextButton(
                           onPressed: () {},
                           child: Text(
                             'Forgot Password',
@@ -193,7 +216,7 @@ class _MyLoginState extends State<MyLogin> {
                               color: Color(0xff4c505b),
                             ),
                           ),
-                        ),
+                        ),*/
                       ],
                     ),
                   ],

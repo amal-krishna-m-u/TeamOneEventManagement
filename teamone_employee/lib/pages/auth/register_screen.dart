@@ -4,6 +4,8 @@ import 'package:teamone_employee/pages/auth/login_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:teamone_employee/services/supabase_config.dart'; 
 import 'package:teamone_employee/services/supabase_client.dart';
+import 'package:flutter/services.dart';
+
 
 
 
@@ -32,6 +34,22 @@ class _MyRegisterState extends State<MyRegister> {
     await supabase;
   }
 
+static const platform = MethodChannel('com.example.signuptoast');
+
+Future<void> showSignupSuccessToast() async {
+  try {
+    await platform.invokeMethod('showSignupSuccessToast'); // Use the correct method name
+  } catch (e) {
+    print('Error invoking method: $e');
+  }
+}
+
+
+
+
+
+
+
 Future<void> signUp() async {
     final supabase = Supabase.instance;
     final response = await supabase.client.auth.signUp(
@@ -39,8 +57,9 @@ Future<void> signUp() async {
       password: _passwordController.text,
       data: { 'name': _fullNameController.text}
     );
-    if (response.session == 1)  {
+    if (response.session?.user.createdAt != null)  {
       // Registration successful
+      showSignupSuccessToast(); 
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -48,9 +67,11 @@ Future<void> signUp() async {
       );
       // Handle success and navigate to next screen
     } else {
+
+ 
       // Registration failed
       // Handle error
-      print('Error: ${response.session}');
+      print('Error21: ${response.session}');
     }
   }
 

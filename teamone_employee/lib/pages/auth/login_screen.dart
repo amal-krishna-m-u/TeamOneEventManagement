@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:teamone_employee/pages/dashboard/dashboard_screen.dart';
 import 'package:teamone_employee/pages/auth/register_screen.dart';
 import 'package:supabase/supabase.dart';
@@ -23,6 +24,18 @@ class _MyLoginState extends State<MyLogin> {
   AuthServices authServices = AuthServices(client);
 
 
+static const platform = MethodChannel('com.example.signuptoast');
+
+  Future<void> handleSuccessfulLogin() async {
+    try {
+      await platform.invokeMethod('successfulLogin');
+    } catch (e) {
+      print('Error invoking method: $e');
+    }
+  }
+
+
+
 
   @override
   void initState() {
@@ -34,7 +47,6 @@ class _MyLoginState extends State<MyLogin> {
   }
 
  
-
   
 
 
@@ -152,6 +164,8 @@ class _MyLoginState extends State<MyLogin> {
                           child: IconButton(
                             onPressed: () {
                               authServices.signInUser(userEmail: _emailController.text, userPassword: _passwordController.text, context: context);
+                              handleSuccessfulLogin();
+
                             },
                             color: Colors.white,
                             icon: Icon(Icons.arrow_forward_ios),
@@ -183,8 +197,14 @@ class _MyLoginState extends State<MyLogin> {
                             ),
                           ),
                         ),
-                        TextButton(
-                          onPressed: () {},
+                        /*TextButton(
+                          onPressed: () {
+
+
+
+
+
+                          },
                           child: Text(
                             'Forgot Password',
                             style: TextStyle(
@@ -193,7 +213,7 @@ class _MyLoginState extends State<MyLogin> {
                               color: Color(0xff4c505b),
                             ),
                           ),
-                        ),
+                        ),*/
                       ],
                     ),
                   ],

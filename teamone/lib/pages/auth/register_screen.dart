@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:TeamOne/pages/auth/login_screen.dart';
+import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:TeamOne/services/supabase_config.dart'; 
 import 'package:TeamOne/services/supabase_client.dart';
@@ -31,7 +32,31 @@ class _MyRegisterState extends State<MyRegister> {
     await supabase;
   }
 
+
+static const platform = MethodChannel('com.example.signuptoast');
+
+Future<void> showSignupSuccessToast() async {
+  try {
+    await platform.invokeMethod('showSignupSuccessToast'); // Use the correct method name
+  } catch (e) {
+    print('Error invoking method: $e');
+  }
+}
+
+
+
+  Future<void> showSignupFailureToast() async {
+    try {
+      await platform.invokeMethod('showSignupFailureToast'); // Use the correct method name
+    } catch (e) {
+      print('Error invoking method: $e');
+    }
+  }
+
+
+
 Future<void> signUp() async {
+  try{ 
     final supabase = Supabase.instance;
     final response = await supabase.client.auth.signUp(
       email: _emailController.text,
@@ -40,8 +65,10 @@ Future<void> signUp() async {
     );
 
 
-    if (response.session != null)  {
+    if (response.session?.user.createdAt != null)  {
+
       // Registration successful
+       showSignupSuccessToast(); 
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -53,6 +80,14 @@ Future<void> signUp() async {
       // Registration failed
       // Handle error
       print('Error: ${response.session}');
+    }
+
+
+
+      }
+catch (error) {
+  showSignupFailureToast();
+      print('Registration failed: $error');
     }
   }
 
