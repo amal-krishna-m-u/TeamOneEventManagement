@@ -39,7 +39,8 @@ class _BillClientState extends State<BillClient> {
         eventPlaceController.text = event['event_place'];
         advanceAmountController.text = event['advance_amount'].toString();
         totalAmountController.text = event['total_amount'].toString();
-        eventManagementTeamController.text = event['event_management_team'].toString();
+        eventManagementTeamController.text =
+            event['event_management_team'].toString();
       });
     } catch (error) {
       print('Error fetching event details: $error');
@@ -61,7 +62,7 @@ class _BillClientState extends State<BillClient> {
         data: paymentClientData,
       );
 
-      await db.UpdateEventRecieved(eventId:widget.eventId);
+      await db.UpdateEventRecieved(eventId: widget.eventId);
     } catch (error) {
       print('Error inserting into payment_client: $error');
     }
@@ -127,6 +128,30 @@ class _BillClientState extends State<BillClient> {
                 keyboardType: TextInputType.text,
                 decoration: InputDecoration(labelText: 'Event Team'),
                 readOnly: true,
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  updateEventDetails();
+                  Navigator.pop(context); // Navigate back to previous screen
+                },
+                child: Text('add rental'),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  updateEventDetails();
+                  Navigator.pop(context); // Navigate back to previous screen
+                },
+                child: Text('add employee'),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  updateEventDetails();
+                  Navigator.pop(context); // Navigate back to previous screen
+                },
+                child: Text('add petrol'),
               ),
               SizedBox(height: 20),
               ElevatedButton(

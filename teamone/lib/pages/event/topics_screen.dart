@@ -37,21 +37,22 @@ class _MyEventsState extends State<MyEvents> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    DateTime currentDate = DateTime.now();
-    final DateTime? selectedDate = await showDatePicker(
-      context: context,
-      initialDate: currentDate,
-      firstDate: DateTime(currentDate.year - 5),
-      lastDate: DateTime(currentDate.year + 5),
-    );
+  DateTime currentDate = DateTime.now();
+  DateTime? pickedDate = await showDatePicker(
+    context: context,
+    initialDate: selectedDate, // Set the initialDate to the selectedDate
+    firstDate: DateTime(currentDate.year - 5),
+    lastDate: DateTime(currentDate.year + 5),
+  );
 
-    if (selectedDate != null && selectedDate != currentDate) {
-      setState(() {
-        // Update the selected date if it's not null and not the same as the current date
-        this.selectedDate = selectedDate;
-      });
-    }
+  if (pickedDate != null && pickedDate != selectedDate) {
+    setState(() {
+      selectedDate = pickedDate;
+    });
   }
+}
+
+
 
   Future<void> loadEvents() async {
     final prefs = await SharedPreferences.getInstance();
@@ -70,7 +71,7 @@ class _MyEventsState extends State<MyEvents> {
         )['event_date'] as String,
       );
       return eventDate
-          .isAfter(removeTimeFromDate(now.subtract(Duration(days: 1))));
+          .isAfter(removeTimeFromDate(now.subtract(Duration(days: 90))));
     }).toList();
 
     setState(() {
