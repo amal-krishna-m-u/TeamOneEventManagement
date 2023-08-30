@@ -71,7 +71,7 @@ class _SelectEmpState extends State<SelectEmp> {
                           ElevatedButton(
                             onPressed: () async {
                               // Approve employee and insert into the assign table
-                              await db.insertIntoAssign(eventId: widget.eventId, employeeId: employeeId);
+                            //  await db.insertIntoAssign(eventId: widget.eventId, employeeId: employeeId);
                               // Set 'approve' to true in event_employee_request table
                               await db.updateEmployeeApproval(eventId: widget.eventId, employeeId: employeeId, approve: true);
                               // Refresh the data

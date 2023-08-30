@@ -16,26 +16,20 @@ class _AssignEmpState extends State<AssignEmp> {
   List<Map<String, dynamic>> unassignedEmployees = [];
   DatabaseServices db = DatabaseServices(client);
   int? eventId;
-  int assignedEmployeeCount = 0;
+  int totalAssignedCareoffs = 0;
 
   @override
   void initState() {
     super.initState();
     fetchEventIdAndUnassignedEmployees();
-    
   }
-
-
-
-
-
-
 
   Future<void> fetchEventIdAndUnassignedEmployees() async {
     eventId = await db.getEventIdByEventName(widget.eventName);
 
     if (eventId != null) {
       await fetchUnassignedEmployees();
+      await fetchTotalAssignedCareoffs();
     } else {
       // Handle error: Event not found or ID not available
     }
@@ -43,10 +37,8 @@ class _AssignEmpState extends State<AssignEmp> {
 
   Future<void> fetchUnassignedEmployees() async {
     final assignedEmployeeData = await db.fetchAssignedEmployeesForEvent(
-      eventId: eventId!, // Use the fetched event ID
+      eventId: eventId!,
     );
-
-    assignedEmployeeCount = assignedEmployeeData.length;
 
     final allEmployeeData = await db.selectAllData(tableName: 'employee');
     final Set<int> assignedEmployeeIds = Set.from(
@@ -58,29 +50,61 @@ class _AssignEmpState extends State<AssignEmp> {
     for (final data in allEmployeeData) {
       final employeeId = data['id'] as int;
       if (!assignedEmployeeIds.contains(employeeId)) {
-        unassignedEmployeeDataFutures.add(db.fetchData(
-          tableName: 'employee',
-          columnName: 'id',
-          columnValue: employeeId.toString(),
-        ).then((value) => value[0]));
+        unassignedEmployeeDataFutures.add(db
+            .fetchData(
+              tableName: 'employee',
+              columnName: 'id',
+              columnValue: employeeId.toString(),
+            )
+            .then((value) => value[0]));
       }
     }
 
-    final unassignedEmployeeList = await Future.wait(unassignedEmployeeDataFutures);
+    final unassignedEmployeeList =
+        await Future.wait(unassignedEmployeeDataFutures);
     setState(() {
       unassignedEmployees = unassignedEmployeeList;
     });
   }
 
-  Future<void> assignEmployee(int employeeId) async {
+  Future<void> fetchTotalAssignedCareoffs() async {
+    final assignedEmployeeData = await db.fetchAssignedEmployeesForEvent(
+      eventId: eventId!,
+    );
+
+    int totalCareoffs = 0;
+
+    for (final data in assignedEmployeeData) {
+      final employeeId = data['emp_id'] as int;
+      final careoffsData = await db.fetchData(
+        tableName: 'assign',
+        columnName: 'emp_id',
+        columnValue: employeeId.toString(),
+      );
+
+      if (careoffsData.isNotEmpty) {
+        final careoffs = careoffsData[0]['careoff'] as int;
+        print(careoffs);
+        totalCareoffs += careoffs;
+      }
+    }
+
+    setState(() {
+      totalAssignedCareoffs = totalCareoffs;
+    });
+  }
+
+  Future<void> assignEmployee(int employeeId, int careoffs) async {
     try {
       await db.insertIntoAssign(
         eventId: eventId!,
         employeeId: employeeId,
+        careoff: careoffs,
       );
 
       // Refresh the screen
       fetchUnassignedEmployees();
+      fetchTotalAssignedCareoffs();
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -88,6 +112,50 @@ class _AssignEmpState extends State<AssignEmp> {
         ),
       );
     }
+  }
+
+  final TextEditingController _careoffsController = TextEditingController();
+
+  Future<void> _showCareoffsDialog(int employeeId) async {
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Assign Employee'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Enter Careoffs:'),
+              TextField(
+                controller: _careoffsController,
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                assignEmployee(employeeId, int.parse(_careoffsController.text));
+              },
+              child: Text('Assign'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _careoffsController.dispose();
+    super.dispose();
   }
 
   @override
@@ -109,7 +177,7 @@ class _AssignEmpState extends State<AssignEmp> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                'Assigned Employees: $assignedEmployeeCount',
+                'Total Assigned Careoffs: $totalAssignedCareoffs',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -127,7 +195,7 @@ class _AssignEmpState extends State<AssignEmp> {
                     subtitle: Text('ID: ${unassignedEmployee['id']}'),
                     trailing: ElevatedButton(
                       onPressed: () =>
-                          assignEmployee(unassignedEmployee['id'] as int),
+                          _showCareoffsDialog(unassignedEmployee['id'] as int),
                       child: Text('Assign'),
                     ),
                   );

@@ -1,4 +1,7 @@
+
+
 import 'package:TeamOne/pages/app_colors.dart';
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:TeamOne/pages/dashboard/dashboard_screen.dart';
 import 'package:TeamOne/pages/app_colors.dart';
@@ -7,6 +10,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../services/supabase_client.dart';
 import '../../services/supabase_config.dart';
+import 'package:TeamOne/services/supabase_client.dart';
 
 class info_outline extends StatefulWidget {
   final String event;
@@ -18,6 +22,7 @@ class info_outline extends StatefulWidget {
 }
 
 class _info_outlineState extends State<info_outline> {
+   var eventid;
   final client = SupabaseClient(supabaseUrl, supabaseKey);
   List<Map<String, dynamic>> tableData = [];
   bool isLoading = true;
@@ -34,6 +39,13 @@ class _info_outlineState extends State<info_outline> {
   List<String> event_type = [];
   List<String> event_team = [];
   List<String> eventname = [];
+List<String> eventids = [];
+List <String> empName =[];
+List <int> careoffperemp =[];
+int totalCareoffs =0;
+List <int> assignid =[];
+bool tap = true;
+
 
   @override
   @override
@@ -48,7 +60,26 @@ class _info_outlineState extends State<info_outline> {
     }
 
     fetchEventsFromSupabase();
+    //fetchTotalAssignedCareoffs();
+    
   }
+
+
+  Future<void> _refreshData() async {
+    // Implement the data refreshing logic here
+ Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                   info_outline (
+                                                  event: widget.event,
+                                                ),
+                                              ),
+                                            );
+  }
+
+
+
 
   Future<void> fetchEventsFromSupabase() async {
     String name = widget.event;
@@ -69,7 +100,7 @@ class _info_outlineState extends State<info_outline> {
 
         setState(() {
           tableData = [
-            {
+            {'eventids': events['id'] as int ?? 0,
               'eventname': events['event_name']?.toString() ?? '',
               'place': events['event_place']?.toString() ?? '',
               'participants': events['participants'] as int? ?? 0,
@@ -84,7 +115,10 @@ class _info_outlineState extends State<info_outline> {
               'event_team': events['event_management_team']?.toString() ?? '',
             }
           ];
+             eventid = tableData[0]['eventids'] as int ;
+             print('event id in setsate $eventid');
         });
+
       } else {
         // No matching event found
         setState(() {
@@ -100,6 +134,7 @@ class _info_outlineState extends State<info_outline> {
           event_type = [];
           event_team = [];
           eventname = [];
+          eventids=[];
         });
       }
     } else {
@@ -110,10 +145,13 @@ class _info_outlineState extends State<info_outline> {
       isLoading =
           false; // Set isLoading to false when data fetching is complete
     });
+    
   }
+  
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(
@@ -128,43 +166,135 @@ class _info_outlineState extends State<info_outline> {
           ),
         ),
       ),
-      body: isLoading
-          ? Center(
-              child:
-                  CircularProgressIndicator(), // Show loader while fetching data
-            )
-          : ListView.builder(
-              itemCount: 1,
-              itemBuilder: (context, index) {
-                final item = tableData[0];
-                return ListBody(
-                  children: [
-                    ListTile(
-                      title: Text('Event Name:     ${item['eventname']}'),
-                      subtitle: Text('Date:    ${item['date']}'),
-                    ),
-                    Divider(),
-                    ListTile(
-                      title: Text(
-                          'EVENT MANAGEMENT TEAM:     ${item['event_team']}'),
-                      subtitle: Text('EVENT TYPE:     ${item['event_type']}'),
-                    ),
-                    Divider(),
-                    ListTile(
-                      title: Text('PLACE :      ${item['place']}'),
-                      subtitle: Text(
-                          'PARTICIPANTS :           ${item['participants'].toString()}'), // Use 'participants' instead of 'number_participants'
-                    ),
-                    Divider(),
-                    ListTile(
-                      title: Text(
-                          'EMPLOYEES :      ${item['employees'].toString()}'), // Use 'employees' instead of 'no_of_employees'
-                    ),
-                    Divider(),
-                  ],
-                );
-              },
+      body: RefreshIndicator(
+        onRefresh: _refreshData,
+        child: isLoading
+            ? Center(
+                child:
+                    CircularProgressIndicator(), // Show loader while fetching data
+              )
+            : ListView.builder(
+                itemCount: 1,
+                itemBuilder: (context, index) {
+                  final item = tableData[0];
+                  return ListBody(
+                    children: [
+                      ListTile(
+                        title: Text('Event Name:     ${item['eventname']}'),
+                        subtitle: Text('Date:    ${item['date']}'),
+                      ),
+                      Divider(),
+                      ListTile(
+                        title: Text(
+                            'EVENT MANAGEMENT TEAM:     ${item['event_team']}'),
+                        subtitle: Text('EVENT TYPE:     ${item['event_type']}'),
+                      ),
+                      Divider(),
+                      ListTile(
+                        title: Text('PLACE :      ${item['place']}'),
+                        subtitle: Text(
+                            'PARTICIPANTS :           ${item['participants'].toString()}'), // Use 'participants' instead of 'number_participants'
+                      ),
+                      Divider(),
+                      ListTile(
+                        title: Text(
+                            'EMPLOYEES :      ${item['employees'].toString()}.          Total careoff: $totalCareoffs'),
+                            onTap: () => fetchTotalAssignedCareoffs(),
+                            
+                            // Use 'employees' instead of 'no_of_employees'
+                      ),
+                      Divider(),
+                          if (empName.isNotEmpty && careoffperemp.isNotEmpty)
+        for (int i = 0; i < empName.length; i++)
+          ListTile(
+            title: Text('Employee Name: ${empName[i]}'),
+            subtitle: Text('Careoff: ${careoffperemp[i]}'),
+            onLongPress:(){  removeempfromevent(assignid[i]);
+              ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Unassigned employee: ${empName[i]}.'),
             ),
+          );},
+          ),
+      
+                   
+                    ],
+                  );
+                },
+              ),
+      ),
     );
+  }
+Future<void> fetchTotalAssignedCareoffs() async {
+
+
+  DatabaseServices db = DatabaseServices(client);
+
+   int totalCareoff = 0;
+
+   //set the values in empName to [] 
+ 
+  final assignedEmployeeData = await db.fetchAssignedEmployeesForEvent(
+    eventId: eventid,
+  );
+
+ 
+
+  for (final data in assignedEmployeeData) {
+    final employeeId = data['emp_id'] as int;
+    final careoffsData = await db.fetchData(
+      tableName: 'assign',
+      columnName: 'emp_id',
+      columnValue: employeeId.toString(),
+    );
+    if (careoffsData.isNotEmpty && careoffsData[0]['careoff'] != null) {
+      int  careoffs = careoffsData[0]['careoff'];
+      assignid.add(careoffsData[0]['id']);
+   
+      totalCareoff += careoffs;
+
+
+
+
+      final empData = await db.fetchData(tableName: 'employee', columnName: 'id', columnValue: employeeId.toString());
+      if (empData.isNotEmpty && empData[0]['name']!= null && tap){
+        
+empName.add(empData[0]['name']);
+          careoffperemp.add(careoffs);
+       
+
+
+
+      }
+    }
+  
+
+  
+
+
+}
+   tap = false;
+  print('Total Assigned Careoffs: $totalCareoffs');
+
+
+
+
+
+  setState(() {
+totalCareoffs = totalCareoff;
+    // Here, you might want to update your UI with the totalCareoffs value.
+  });
+}
+
+  Future <void>removeempfromevent ( id) async{
+
+
+
+  DatabaseServices db = DatabaseServices(client);
+  print('assign id is :$id');
+
+db.deleteData(tableName: 'assign', columnName: 'id', columnValue: id.toString());
+
+
   }
 }
