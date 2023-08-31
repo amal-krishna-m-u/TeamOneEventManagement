@@ -12,6 +12,8 @@ class BillHistory extends StatefulWidget {
 class _BillHistoryState extends State<BillHistory> {
   DatabaseServices db = DatabaseServices(client);
   List<Map<String, dynamic>> userPaymentDetails = [];
+  String searchQuery = '';
+  bool isSearchExpanded = false;
 
   @override
   void initState() {
@@ -47,7 +49,73 @@ class _BillHistoryState extends State<BillHistory> {
     }
   }
 
-    @override
+  Future<void> _showPaymentDetailsDialog(Map<String, dynamic> payment) async {
+    final event = payment['event_details'] as Map<String, dynamic>?;
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return Theme(
+          data: ThemeData.from(
+            colorScheme: ColorScheme.light(
+              primary: Color(0xFF283747),
+              secondary: Colors.white,
+            ),
+          ),
+          child: AlertDialog(
+            title: Text('Payment Details'),
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (event != null) ...[
+                    Text('Event Name: ${event['event_name']}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text('Bill NO : ${payment['Bill_no']}'),
+                    SizedBox(height: 4),
+                    Text('Event Date: ${event['event_date']}'),
+                  ],
+                  SizedBox(height: 8),
+                  Text('Payment Date: ${payment['payment_date']}'),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  Text('Payment Amount: ${payment['amount']}'),
+                  SizedBox(height: 8),
+                  Text('careoff: ${payment['careoff']}'),
+                  SizedBox(height: 8),
+                  Text('Extra amount: ${payment['extra']}'),
+                  SizedBox(height: 8),
+                  Text('Fuel amount: ${payment['fuel']}'),
+                  SizedBox(height: 8),
+                  Text('Total: (${payment['amount']} * ${payment['careoff']}) + ${payment['fuel']} + ${payment['extra']}    =     ${payment['total']}'),
+                  SizedBox(height: 8),
+                  Text('Mode of payment : ${payment['mode_of_payment']}'),
+                  SizedBox(height: 8),
+                  Text('Sender: ${payment['sender']}'),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Close'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Theme(
       data: ThemeData.from(
@@ -60,65 +128,87 @@ class _BillHistoryState extends State<BillHistory> {
         appBar: AppBar(
           title: Text('Your Bill History'),
         ),
-        body: userPaymentDetails.isNotEmpty
-            ? ListView.builder(
-                itemCount: userPaymentDetails.length,
-                itemBuilder: (context, index) {
-                  final payment = userPaymentDetails[index];
-                  final event = payment['event_details'] as Map<String, dynamic>?;
+        body: Column(
+          children: [
+            if (isSearchExpanded)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      searchQuery = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Search',
+                    prefixIcon: Icon(Icons.search),
+                  ),
+                ),
+              ),
+            Expanded(
+              child: userPaymentDetails.isNotEmpty
+                  ? ListView.builder(
+                      itemCount: userPaymentDetails.length,
+                      itemBuilder: (context, index) {
+                        final payment = userPaymentDetails[index];
+                        final event =
+                            payment['event_details'] as Map<String, dynamic>?;
 
-                  return Container(
-                    padding: EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Theme.of(context).dividerColor,
-                        ),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (event != null) ...[
-                          SizedBox(height: 4),
-                          Text(
-                            'Event Name: ${event['event_name']}',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                        if (searchQuery.isNotEmpty &&
+                            event != null &&
+                            !event['event_name']
+                                .toLowerCase()
+                                .contains(searchQuery.toLowerCase())) {
+                          return Container();
+                        }
+
+                        return GestureDetector(
+                          onTap: () {
+                            _showPaymentDetailsDialog(payment);
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: Theme.of(context).dividerColor,
+                                ),
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (event != null) ...[
+                                  SizedBox(height: 4),
+                                  Text(
+                                    'Event Name: ${event['event_name']}',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text('Payment Date: ${payment['payment_date']}'),
+                                ],
+                              ],
                             ),
                           ),
-                          SizedBox(height: 8),
-                          Text('Bill NO : ${payment['Bill_no']}'),
-                          SizedBox(height: 4),
-                          Text('Event Date: ${event['event_date']}'),
-                        ],
-                        SizedBox(height: 8),
-                        Text('Payment Date: ${payment['payment_date']}'),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        Text(
-                          'Payment Amount: ${payment['amount']}',
-                        ),
-                        SizedBox(height: 8),
-                        Text('careoff: ${payment['careoff']}'),
-                        SizedBox(height: 8),
-                        Text('Extra amount: ${payment['extra']}'),
-                        SizedBox(height: 8),
-                        Text('Fuel amount: ${payment['fuel']}'),
-                        SizedBox(height: 8),
-                        Text('Total: (${payment['amount']} * ${payment['careoff']}) + ${payment['fuel']} + ${payment['extra']}    =     ${payment['total']}'),
-                        SizedBox(height: 8),
-                        Text('Mode of payment : ${payment['mode_of_payment']}'),
-                        SizedBox(height: 8),
-                        Text('Sender: ${payment['sender']}'),
-                      ],
-                    ),
-                  );
-                },
-              )
-            : Center(child: Text('No payment history available.')),
+                        );
+                      },
+                    )
+                  : Center(child: Text('No payment history available.')),
+            ),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            setState(() {
+              isSearchExpanded = !isSearchExpanded;
+            });
+          },
+          child: Icon(Icons.search),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
     );
   }

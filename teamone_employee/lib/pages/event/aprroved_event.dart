@@ -232,7 +232,7 @@ Future<List<Map<String, dynamic>>> fetchAssignedEventsWithCareoff() async {
               style: ElevatedButton.styleFrom(
                 primary: Color(0xFF283747),
               ),
-              child: Text('Event: $eventName  ||  Date: $eventDate. Careoff: $careoffNumber'),
+              child: Text('\n Event: $eventName \n\n Date: $eventDate. \n Careoff: $careoffNumber \n'),
             ),
           );
         }).toList(),
