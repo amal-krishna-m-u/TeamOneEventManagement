@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:teamone_employee/main.dart';
 import 'package:teamone_employee/pages/event/event_request.dart';
 import 'package:teamone_employee/pages/dashboard/dashboard_screen.dart';
@@ -16,7 +17,7 @@ final eventId;
 class _ViewDetailsState extends State<ViewDetails> {
   DatabaseServices db = DatabaseServices(client);
   int? employeeId; // Initialize as nullable
-
+  TextEditingController _careoffsController =TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -122,17 +123,29 @@ class _ViewDetailsState extends State<ViewDetails> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Event Name: $eventName'),
-                        SizedBox(height: 10),
+                        SizedBox(height: 5),
                         Text('Event Date: $eventDate'),
-                        SizedBox(height: 10),
+                        SizedBox(height: 5),
                         Text('Number of participants: $participants'),
-                        SizedBox(height: 10),
+                        SizedBox(height: 5),
                         Text('Number of employees required: $employees'),
-                        SizedBox(height: 10),
+                        SizedBox(height: 5),
                         Text('Event Management Team: $eventManagement'),
-                        SizedBox(height: 10),
+                        SizedBox(height: 5),
                         Text('Event Place: $place'),
-                        SizedBox(height: 10),
+                        SizedBox(height: 15),
+                        //input careoff here 
+                        Text('Number of careoff ',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),),
+                        Text('(if only you insert 1 )'),
+                      TextField(
+                        
+                controller: _careoffsController,
+                keyboardType: TextInputType.number,
+              ),
                         if (employeeId != null)
                           ElevatedButton(
                             onPressed: () async {
@@ -145,6 +158,7 @@ class _ViewDetailsState extends State<ViewDetails> {
                                   data: {
                                     'event_id': widget.eventId,
                                     'employee_id': employeeId,
+                                    'careoff':int.parse(_careoffsController.text)
                                   },
                                 );
                                 Navigator.push(

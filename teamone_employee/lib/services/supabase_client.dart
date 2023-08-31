@@ -206,7 +206,7 @@ Future<List<Map<String, dynamic>>> fetchAllJoinEventData({
     required Map<String, dynamic> data,
   }) async {
     final response = await client.from(tableName).insert(data).execute();
-    if (response.status == 200) {
+    if (response.status == 201 || response.status == 202 || response.status == 204||response.status ==200) {
       print('Data inserted successfully');
     } else {
       print('Data insertion failed');

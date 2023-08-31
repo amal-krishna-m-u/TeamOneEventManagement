@@ -14,11 +14,13 @@ class ApprovedEvent extends StatefulWidget {
 class _ApprovedEventState extends State<ApprovedEvent> {
   DatabaseServices db = DatabaseServices(client);
   int? employeeId; // Initialize as nullable
+  List <int> careoff_no = [];
 
   @override
   void initState() {
     super.initState();
     fetchEmployeeId();
+  fetchAssignedEventsWithCareoff(); 
   }
 
   Future<void> fetchEmployeeId() async {
@@ -33,6 +35,49 @@ class _ApprovedEventState extends State<ApprovedEvent> {
       });
     }
   }
+
+
+Future<List<Map<String, dynamic>>> fetchAssignedEventsWithCareoff() async {
+  final response = await client
+      .from('assign')
+      .select('event_id, careoff')
+      .eq('emp_id', employeeId)
+      .execute();
+
+  if (response.status != 200) {
+    throw response.status;
+  }
+
+  final assignedEventsWithCareoff = (response.data as List<dynamic>).cast<Map<String, dynamic>>();
+  final eventIds = assignedEventsWithCareoff.map<int>((event) => event['event_id'] as int).toList();
+
+  final eventResponse = await client
+      .from('events')
+      .select()
+      .in_('id', eventIds)
+      .execute();
+
+  if (eventResponse.status != 200) {
+    throw eventResponse.status;
+  }
+
+  final assignedEvents = (eventResponse.data as List<dynamic>).cast<Map<String, dynamic>>();
+  
+  // Match careoff number to assigned event
+  for (final assignedEvent in assignedEventsWithCareoff) {
+    final eventId = assignedEvent['event_id'] as int;
+    final matchingEvent = assignedEvents.firstWhere((event) => event['id'] == eventId);
+    matchingEvent['careoff'] = assignedEvent['careoff'];
+  }
+
+  return assignedEvents;
+}
+
+
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -102,9 +147,15 @@ class _ApprovedEventState extends State<ApprovedEvent> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: upcomingEvents.map((event) {
-                          final eventName = event['event_name'];
-                          final eventDate = event['event_date'];
-                          final eventId = event['id'];
+                              final eventName = event['event_name'];
+    final eventDate = event['event_date'];
+    final eventId = event['id'];
+    final eventIndex = upcomingEvents.indexOf(event); // Get the index of the current event
+    
+    // Display the careoff number for the current event
+    final careoffNumber = (eventIndex < careoff_no.length) ? careoff_no[eventIndex].toString() : 'N/A';
+
+
                           return Padding(
                             padding: EdgeInsets.only(left: 10, top: 10),
                             child: ElevatedButton(
@@ -121,7 +172,7 @@ class _ApprovedEventState extends State<ApprovedEvent> {
                               style: ElevatedButton.styleFrom(
                                 primary: Color(0xFF283747),
                               ),
-                              child: Text('Event: $eventName  ||  Date: $eventDate'),
+                              child: Text('Event: $eventName  ||  Date: $eventDate.'),
                             ),
                           );
                         }).toList(),
@@ -146,61 +197,50 @@ class _ApprovedEventState extends State<ApprovedEvent> {
                   ),
                 ),
                 SizedBox(height: 30),
-                FutureBuilder<List<Map<String, dynamic>>>(
-                  future: db.fetchAssignedEvents(employeeId: employeeId),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator(); // Display a loading indicator
-                    } else if (snapshot.hasError) {
-                      // Error message
-                      return Text('Error: ${snapshot.error}');
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Text('No assigned event data available.');
-                    } else {
-                      final assignedEvents = snapshot.data!.where((event) {
-                        return event['event_completed'] != '1';
-                      }).toList();
+            FutureBuilder<List<Map<String, dynamic>>>(
+  future: fetchAssignedEventsWithCareoff(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return CircularProgressIndicator(); // Display a loading indicator
+    } else if (snapshot.hasError) {
+      // Error message
+      return Text('Error: ${snapshot.error}');
+    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+      return Text('No assigned event data available.');
+    } else {
+      final assignedEvents = snapshot.data!;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: assignedEvents.map((event) {
+          final eventName = event['event_name'];
+          final eventDate = event['event_date'];
+          final careoffNumber = event['careoff'] ?? 'N/A'; // Default to 'N/A' if careoff is not available
+          final eventId = event['id'];
+          return Padding(
+            padding: EdgeInsets.only(left: 10, top: 10),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ViewDetails(
+                      eventId: eventId,
+                    ),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                primary: Color(0xFF283747),
+              ),
+              child: Text('Event: $eventName  ||  Date: $eventDate. Careoff: $careoffNumber'),
+            ),
+          );
+        }).toList(),
+      );
+    }
+  },
+),
 
-                      if (assignedEvents.isEmpty) {
-                        return Text('No assigned events.');
-                      }
-
-                      assignedEvents.sort((a, b) {
-                        final aDate = DateTime.parse(a['event_date']);
-                        final bDate = DateTime.parse(b['event_date']);
-                        return aDate.compareTo(bDate);
-                      });
-
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: assignedEvents.map((event) {
-                          final eventName = event['event_name'];
-                          final eventDate = event['event_date'];
-                          final eventId = event['id'];
-                          return Padding(
-                            padding: EdgeInsets.only(left: 10, top: 10),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ViewDetails(
-                                      eventId: eventId,
-                                    ),
-                                  ),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                primary: Color(0xFF283747),
-                              ),
-                              child: Text('Event: $eventName || Date: $eventDate'),
-                            ),
-                          );
-                        }).toList(),
-                      );
-                    }
-                  },
-                ),
               ],
             ),
           ),
