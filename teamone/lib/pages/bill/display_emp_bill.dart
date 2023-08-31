@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:TeamOne/services/supabase_client.dart';
 import 'package:TeamOne/main.dart';
 import 'package:intl/date_time_patterns.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'make_payment.dart';
 class DisplayEmpBill extends StatefulWidget {
   final int eventId;
@@ -20,17 +21,23 @@ class _DisplayEmpBillState extends State<DisplayEmpBill> {
   late DateTime eventDate;
   int? billNo;
   bool isLoaging = true;
+  int? careoff ;
 
-  late TextEditingController salaryController;
-  late TextEditingController totalAmountController;
+   TextEditingController salaryController=TextEditingController();
+   TextEditingController totalAmountController=TextEditingController();
+  TextEditingController fuelController=TextEditingController();
+  TextEditingController extraController=TextEditingController();
+  TextEditingController careoffController =TextEditingController();
+  TextEditingController senderController=TextEditingController();
+  TextEditingController modeController=TextEditingController();
+
+
 
   @override
   void initState() {
     super.initState();
     fetchEventAndEmployeeDetails();
     fetchLastBillNumber();
-    salaryController = TextEditingController();
-    totalAmountController = TextEditingController();
   }
 
   Future<void> fetchEventAndEmployeeDetails() async {
@@ -52,10 +59,28 @@ class _DisplayEmpBillState extends State<DisplayEmpBill> {
       );
       employeeName = employeeDetails.isNotEmpty ? employeeDetails[0]['name'] : '';
 
+
+final res = await client
+        .from('assign')
+        .select('careoff')
+        .eq('emp_id', widget.employeeId)
+        .eq('event_id', widget.eventId)
+        .execute();
+careoff = res.data[0]['careoff'];
+careoffController.text = careoff.toString();
+
       setState(() {});
     } catch (error) {
       print('Error fetching event and employee details: $error');
     }
+
+
+
+
+
+    
+
+
 
 
 
@@ -108,6 +133,12 @@ class _DisplayEmpBillState extends State<DisplayEmpBill> {
   void dispose() {
     salaryController.dispose();
     totalAmountController.dispose();
+    fuelController.dispose();
+    extraController.dispose();
+    careoffController.dispose();
+    senderController.dispose();
+    modeController.dispose();
+
     super.dispose();
   }
 
@@ -128,18 +159,21 @@ class _DisplayEmpBillState extends State<DisplayEmpBill> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Theme(
-              data: Theme.of(context).copyWith(
-                dividerColor: Colors.black,
-                unselectedWidgetColor: Colors.black,
-              ),
+            
+            Expanded(
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                  dividerColor: Colors.black,
+                  unselectedWidgetColor: Colors.black,
+                ),
+
               child: Table(
                 border: TableBorder.all(),
                 children: [
                   TableRow(
                     children: [
                       TableCell(
-                        child: Text('Bill No:',
+                        child: Text('\t Bill No:',
                             style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                       TableCell(
@@ -150,7 +184,7 @@ class _DisplayEmpBillState extends State<DisplayEmpBill> {
                   TableRow(
                     children: [
                       TableCell(
-                        child: Text('Employee Name:',
+                        child: Text('\t Employee Name:',
                             style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                       TableCell(
@@ -161,7 +195,7 @@ class _DisplayEmpBillState extends State<DisplayEmpBill> {
                   TableRow(
                     children: [
                       TableCell(
-                        child: Text('Event Name:',
+                        child: Text('\t Event Name:',
                             style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                       TableCell(
@@ -172,7 +206,7 @@ class _DisplayEmpBillState extends State<DisplayEmpBill> {
                   TableRow(
                     children: [
                       TableCell(
-                        child: Text('Date of Event:',
+                        child: Text('\t Date of Event:',
                             style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                       TableCell(
@@ -185,7 +219,7 @@ class _DisplayEmpBillState extends State<DisplayEmpBill> {
                   TableRow(
                     children: [
                       TableCell(
-                        child: Text('Bill Date:',
+                        child: Text('\t Bill Date:',
                             style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                       TableCell(
@@ -199,7 +233,27 @@ class _DisplayEmpBillState extends State<DisplayEmpBill> {
                   TableRow(
                     children: [
                       TableCell(
-                        child: Text('Salary:',
+                        child: Text('\t careoff:',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      TableCell(
+                        child: TextFormField(
+                          controller: careoffController,
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                    ],
+                  ),
+
+
+
+
+
+
+TableRow(
+                    children: [
+                      TableCell(
+                        child: Text('\t Amount:',
                             style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                       TableCell(
@@ -210,17 +264,105 @@ class _DisplayEmpBillState extends State<DisplayEmpBill> {
                       ),
                     ],
                   ),
+
+
+
+
+TableRow(
+                    children: [
+                      TableCell(
+                        child: Text('\t Fuel:',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      TableCell(
+                        child: TextFormField(
+                          controller: fuelController,
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                    ],
+                  ),
+
+
+                  TableRow(
+                    children: [
+                      TableCell(
+                        child: Text('\t Extra:',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      TableCell(
+                        child: TextFormField(
+                          controller: extraController,
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                /*  TableRow(
+                    children: [
+                      TableCell(
+                        child: Text('\t Total:',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+TableCell( 
+                        child: Text('${careoff}*${salaryController.text}+${fuelController.text}+${extraController.text}'),
+                      ),
+                    ],
+                  ),*/
+
+
+TableRow(
+                    children: [
+                      TableCell(
+                        child: Text('\t Sender:',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      TableCell(
+                        child: TextFormField(
+                          controller: senderController,
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  TableRow(
+                    children: [
+                      TableCell(
+                        child: Text('\t Mode of payment:',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      TableCell(
+                        child: TextFormField(
+                          controller: modeController,
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                    ],
+                  ),
+
+
+
+
+
+
+
+
+
+
                 ],
               ),
             ),
-            SizedBox(height: 16),
+            ),
+         /*   SizedBox(height: 16),
             Center(
               child: Text(
                 'Computer Generated Bill',
                 style: TextStyle(fontStyle: FontStyle.italic),
               ),
             ),
-            Spacer(),
+            Spacer(),*/
             ElevatedButton(
               onPressed: () {
                 // Navigate to MakePayment page
@@ -249,6 +391,7 @@ class _DisplayEmpBillState extends State<DisplayEmpBill> {
               },
               child: Text('Create Bill and Go Back'),
             ),
+
           ],
         ),
       ),
@@ -263,7 +406,11 @@ final Response = await db.insertData(tableName: 'payment', data: {
   'emp_id': widget.employeeId,
   'amount': salaryController.text.toString(),
   'payment_date': DateTime.now().toLocal().toString().split(' ')[0],
-
+'careoff': int.parse(careoffController.text),
+'fuel': int.parse(fuelController.text),
+'extra': int.parse(extraController.text),
+'sender': senderController.text.toString(),
+'mode_of_payment':modeController.text.toString()
 
 });
 

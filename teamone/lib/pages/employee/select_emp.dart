@@ -25,7 +25,8 @@ class _SelectEmpState extends State<SelectEmp> {
 
   Future<void> _refreshData() async {
     setState(() {
-      employeeDataFuture = db.fetchAllEmployeesForEvent(eventId: widget.eventId);
+      employeeDataFuture =
+          db.fetchAllEmployeesForEvent(eventId: widget.eventId);
     });
   }
 
@@ -53,7 +54,8 @@ class _SelectEmpState extends State<SelectEmp> {
               } else if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(child: Text('No employees found for the selected event.'));
+                return Center(
+                    child: Text('No employees found for the selected event.'));
               } else {
                 final employeeData = snapshot.data!;
                 return ListView.builder(
@@ -63,20 +65,68 @@ class _SelectEmpState extends State<SelectEmp> {
                     final employeeName = employee['name'];
                     final employeeId = employee['id'];
                     final issup = employee['is_supervisor'];
+                    final careoff = employee['careoff'];
                     return ListTile(
-                      title: Text('$employeeName                 supervisor : $issup'),
+                      title: Text('\n $employeeName \n supervisor : $issup'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           ElevatedButton(
                             onPressed: () async {
-                              // Approve employee and insert into the assign table
-                            //  await db.insertIntoAssign(eventId: widget.eventId, employeeId: employeeId);
-                              // Set 'approve' to true in event_employee_request table
-                              await db.updateEmployeeApproval(eventId: widget.eventId, employeeId: employeeId, approve: true);
-                              // Refresh the data
-                              await _refreshData();
-                              refreshKey.currentState?.show();
+                              // Show a dialog to confirm the careoff number
+                              final careoffController = TextEditingController(
+                                  text: careoff.toString());
+                              bool confirm = await showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: Text('Confirm Careoff'),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text('Enter Careoff Number:'),
+                                        SizedBox(height: 8),
+                                        TextField(
+                                          controller: careoffController,
+                                          keyboardType: TextInputType.number,
+                                        ),
+                                      ],
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(
+                                              context, false); // Cancel
+                                        },
+                                        child: Text('Cancel'),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(
+                                              context, true); // Confirm
+                                        },
+                                        child: Text('Confirm'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+
+                              if (confirm == true) {
+                                // Update the database with the edited careoff number
+                                final editedCareoff =
+                                    int.tryParse(careoffController.text);
+                                if (editedCareoff != null) {
+                                  await db.updateEmployeeApproval(
+                                      eventId: widget.eventId,
+                                      employeeId: employeeId,
+                                      approve: true,
+                                      careoff: editedCareoff);
+                                  // Refresh the data
+                                  await _refreshData();
+                                  refreshKey.currentState?.show();
+                                }
+                              }
                             },
                             child: Text('Approve'),
                           ),
@@ -84,7 +134,9 @@ class _SelectEmpState extends State<SelectEmp> {
                           ElevatedButton(
                             onPressed: () async {
                               // Delete record from the event_employee_request table
-                              await db.deleteEventEmployeeRequest(eventId: widget.eventId, employeeId: employeeId);
+                              await db.deleteEventEmployeeRequest(
+                                  eventId: widget.eventId,
+                                  employeeId: employeeId);
                               // Refresh the data
                               await _refreshData();
                               refreshKey.currentState?.show();
