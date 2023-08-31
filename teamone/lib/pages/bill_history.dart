@@ -28,6 +28,8 @@ class _BillHistoryState extends State<BillHistory> {
         employeePaymentDetails = payments
             .where((payment) => payment['employee_details'] != null)
             .toList();
+            print(employeePaymentDetails);
+            print( clientPaymentDetails);
         clientPaymentDetails = payments
             .where((payment) => payment['employee_details'] == null)
             .toList();
