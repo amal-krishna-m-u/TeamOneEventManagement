@@ -22,22 +22,20 @@ class _BillHistoryState extends State<BillHistory> {
   Future<void> fetchUserPaymentData() async {
     try {
       AuthServices auth = AuthServices(client);
-      final currentUser = auth.getUserId(); // Assuming you have access to the current user
+      final currentUser =
+          auth.getUserId(); // Assuming you have access to the current user
       if (currentUser != null) {
-        final employeeDetails = await db.fetchEmployeeDetailsWithUserId(currentUser);
+        final employeeDetails =
+            await db.fetchEmployeeDetailsWithUserId(currentUser);
         if (employeeDetails != null) {
           final empId = employeeDetails['id'] as int;
           final payments = await db.fetchUserPaymentDetails(empId);
 
-
-
-payments.sort((a, b) {
-          final aDate = DateTime.parse(a['payment_date']);
-          final bDate = DateTime.parse(b['payment_date']);
-          return bDate.compareTo(aDate);
-        });
-
-
+          payments.sort((a, b) {
+            final aDate = DateTime.parse(a['payment_date']);
+            final bDate = DateTime.parse(b['payment_date']);
+            return bDate.compareTo(aDate);
+          });
 
           setState(() {
             userPaymentDetails = payments;
@@ -49,7 +47,7 @@ payments.sort((a, b) {
     }
   }
 
-  @override
+    @override
   Widget build(BuildContext context) {
     return Theme(
       data: ThemeData.from(
@@ -81,21 +79,40 @@ payments.sort((a, b) {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Payment Amount: ${payment['amount']}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Text('Payment Date: ${payment['payment_date']}'),
                         if (event != null) ...[
                           SizedBox(height: 4),
-                          Text('Event Name: ${event['event_name']}'),
+                          Text(
+                            'Event Name: ${event['event_name']}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text('Bill NO : ${payment['Bill_no']}'),
                           SizedBox(height: 4),
                           Text('Event Date: ${event['event_date']}'),
                         ],
+                        SizedBox(height: 8),
+                        Text('Payment Date: ${payment['payment_date']}'),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        Text(
+                          'Payment Amount: ${payment['amount']}',
+                        ),
+                        SizedBox(height: 8),
+                        Text('careoff: ${payment['careoff']}'),
+                        SizedBox(height: 8),
+                        Text('Extra amount: ${payment['extra']}'),
+                        SizedBox(height: 8),
+                        Text('Fuel amount: ${payment['fuel']}'),
+                        SizedBox(height: 8),
+                        Text('Total: (${payment['amount']} * ${payment['careoff']}) + ${payment['fuel']} + ${payment['extra']}    =     ${payment['total']}'),
+                        SizedBox(height: 8),
+                        Text('Mode of payment : ${payment['mode_of_payment']}'),
+                        SizedBox(height: 8),
+                        Text('Sender: ${payment['sender']}'),
                       ],
                     ),
                   );

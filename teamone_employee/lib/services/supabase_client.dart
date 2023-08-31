@@ -39,7 +39,7 @@ class DatabaseServices {
 Future<List<Map<String, dynamic>>> fetchUserPaymentDetails(int empId) async {
   final response = await client
       .from('payment')
-      .select('id, emp_id, event_id, amount, payment_date, mode_of_payment, Bill_no')
+      .select('id, emp_id, event_id, amount, payment_date, mode_of_payment, Bill_no,sender,careoff,extra,fuel,total')
       .eq('emp_id', empId)
       .execute();
 
