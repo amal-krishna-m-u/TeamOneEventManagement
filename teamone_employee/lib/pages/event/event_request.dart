@@ -18,6 +18,9 @@ class EventRequest extends StatefulWidget {
 class _EventRequestState extends State<EventRequest> {
 
 DatabaseServices db = DatabaseServices(client);
+DateTime? startDate;
+DateTime? endDate;
+
 
 
 
