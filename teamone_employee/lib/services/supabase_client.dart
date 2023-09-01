@@ -42,6 +42,7 @@ Future<List<Map<String, dynamic>>> fetchUserPaymentDetails(int empId) async {
       .select('id, emp_id, event_id, amount, payment_date, mode_of_payment, Bill_no,sender,careoff,extra,fuel,total,remarks')
       .eq('emp_id', empId)
       .execute();
+      print(response.data);
 
   if (response.status == 200 && response.data != null) {
     final paymentData = response.data as List<dynamic>;
@@ -214,7 +215,7 @@ Future<List<Map<String, dynamic>>> fetchAllJoinEventData({
   }
 
 
-  
+
 Future<int> vacancyEmp(int eventid) async {
   final response = await client.from('assign')
     .select()

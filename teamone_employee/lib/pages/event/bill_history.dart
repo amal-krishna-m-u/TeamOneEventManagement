@@ -15,6 +15,7 @@ class _BillHistoryState extends State<BillHistory> {
   List<Map<String, dynamic>> userPaymentDetails = [];
   String searchQuery = '';
   bool isSearchExpanded = false;
+  late final int empRecTot;
 
   @override
   void initState() {
@@ -32,6 +33,7 @@ class _BillHistoryState extends State<BillHistory> {
             await db.fetchEmployeeDetailsWithUserId(currentUser);
         if (employeeDetails != null) {
           final empId = employeeDetails['id'] as int;
+       //   final empRecTot = employeeDetails['recieved_total'] as int;
           final payments = await db.fetchUserPaymentDetails(empId);
 
           payments.sort((a, b) {
@@ -178,22 +180,24 @@ class _BillHistoryState extends State<BillHistory> {
                                 ),
                               ),
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (event != null) ...[
-                                  SizedBox(height: 4),
-                                  Text(
-                                    'Event Name: ${event['event_name']}',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
+                            child: SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (event != null) ...[
+                                    SizedBox(height: 4),
+                                    Text(
+                                      'Event Name: ${event['event_name']}',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text('Payment Date: ${payment['payment_date']}'),
+                                    SizedBox(height: 8),
+                                    Text('Payment Date: ${payment['payment_date']}'),
+                                  ],
                                 ],
-                              ],
+                              ),
                             ),
                           ),
                         );

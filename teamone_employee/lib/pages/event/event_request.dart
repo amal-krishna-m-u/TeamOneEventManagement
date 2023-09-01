@@ -16,7 +16,7 @@ class EventRequest extends StatefulWidget {
 
 class _EventRequestState extends State<EventRequest> {
   DatabaseServices db = DatabaseServices(client);
-  DateTime? startDate;
+  DateTime? startDate = DateTime.now();
   DateTime? endDate;
 
   void _selectDateRange(BuildContext context) async {
