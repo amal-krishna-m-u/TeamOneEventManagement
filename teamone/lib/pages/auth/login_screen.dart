@@ -72,26 +72,10 @@ class _MyLoginState extends State<MyLogin> {
                     SizedBox(
                       height: 50,
                     ),
-                    Icon(
-                      Icons.lock,
-                      size: 80,
-                      color: Colors.black,
-                    ),
-                    Text(
-                      'TeamOne',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 45,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.5,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black,
-                            blurRadius: 10,
-                            offset: Offset(5, 5),
-                          ),
-                        ],
-                      ),
+ Image.asset(
+                      'lib/images/logo.png', // Path to your PNG image
+                      width: 210, // Set the desired width
+                      height: 210, // Set the desired height
                     ),
                   ],
                 ),

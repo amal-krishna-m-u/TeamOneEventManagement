@@ -18,6 +18,7 @@ class _ViewDetailsState extends State<ViewDetails> {
   DatabaseServices db = DatabaseServices(client);
   int? employeeId; // Initialize as nullable
   TextEditingController _careoffsController =TextEditingController();
+  late final int vacancyemp=0;
   @override
   void initState() {
     super.initState();
@@ -30,11 +31,16 @@ class _ViewDetailsState extends State<ViewDetails> {
     final employeeData = await db.fetchData(
         tableName: 'employee', columnName: 'userid', columnValue: userid);
 
+     
+
     if (employeeData.isNotEmpty) {
       setState(() {
         employeeId = employeeData[0]['id'];
       });
     }
+
+
+                  
   }
 
   Future<bool> checkExistingRequest(int eventId, int? employeeId) async {
@@ -61,6 +67,8 @@ class _ViewDetailsState extends State<ViewDetails> {
 
   @override
   Widget build(BuildContext context) {
+
+  
     return Theme(
       data: ThemeData.from(
         colorScheme: ColorScheme.light(
@@ -77,113 +85,154 @@ class _ViewDetailsState extends State<ViewDetails> {
             ),
           ),
         ),
-        body: Padding(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Event Details Page',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Event Details Page',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              SizedBox(height: 20),
-              Text(
-                'Here you can view event details.',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
+                SizedBox(height: 20),
+                Text(
+                  'Here you can view event details.',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[600],
+                  ),
                 ),
-              ),
-              SizedBox(height: 30),
-              FutureBuilder<List<Map<String, dynamic>>>(
-                future: db.fetchData(
-                    tableName: 'events',
-                    columnName: 'id',
-                    columnValue: widget.eventId.toString()),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Text('No event data available.');
-                  } else {
-                    final eventData = snapshot.data![0];
-                    final eventName = eventData['event_name'];
-                    final eventDate = eventData['event_date'];
-                    final participants = eventData['participants'];
-                    final employees = eventData['no_of_employees'];
-                    final eventManagement = eventData['event_management_team'];
-                    final place = eventData['event_place'];
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Event Name: $eventName'),
-                        SizedBox(height: 5),
-                        Text('Event Date: $eventDate'),
-                        SizedBox(height: 5),
-                        Text('Number of participants: $participants'),
-                        SizedBox(height: 5),
-                        Text('Number of employees required: $employees'),
-                        SizedBox(height: 5),
-                        Text('Event Management Team: $eventManagement'),
-                        SizedBox(height: 5),
-                        Text('Event Place: $place'),
-                        SizedBox(height: 15),
-                        //input careoff here 
-                        Text('Number of careoff ',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),),
-                        Text('(if only you insert 1 )'),
-                      TextField(
-                        
-                controller: _careoffsController,
-                keyboardType: TextInputType.number,
-              ),
-                        if (employeeId != null)
-                          ElevatedButton(
-                            onPressed: () async {
-                              final requestExists = await checkExistingRequest(
-                                  widget.eventId, employeeId);
-
-                              if (!requestExists) {
-                                db.insertData(
-                                  tableName: 'event_employee_request',
-                                  data: {
-                                    'event_id': widget.eventId,
-                                    'employee_id': employeeId,
-                                    'careoff':int.parse(_careoffsController.text)
-                                  },
-                                );
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => EventRequest(),
-                                  ),
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                        'You have already requested this event.'),
-                                  ),
-                                );
-                              }
-                            },
-                            child: Text('Request Event'),
-                          ),
-                      ],
-                    );
-                  }
-                },
-              ),
-            ],
+                SizedBox(height: 30),
+                FutureBuilder<List<Map<String, dynamic>>>(
+                  future: db.fetchData(
+                      tableName: 'events',
+                      columnName: 'id',
+                      columnValue: widget.eventId.toString()),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return Text('No event data available.');
+                    } else {
+                      print(snapshot.data);
+                      final eventData = snapshot.data![0];
+                      final eventName = eventData['event_name'];
+                      final eventDate = eventData['event_date'];
+                      final participants = eventData['participants'];
+                      final employees = eventData['no_of_employees'];
+                      final eventManagement = eventData['event_management_team'];
+                      final place = eventData['event_place'];
+                      final type = eventData['event_type'];
+                     
+        
+        
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('$eventName',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),),
+                          SizedBox(height: 15),
+                          Text('Event Date: $eventDate'),
+                          SizedBox(height: 5),
+                          Text('Number of participants: $participants'),
+                          SizedBox(height: 5),
+                          Text('Total Number of employees required: $employees'),
+                          SizedBox(height: 5),
+                          Text('Event Management Team: $eventManagement'),
+                          SizedBox(height: 5),
+                          Text('Event Place: $place'),
+                          SizedBox(height: 8),
+                          Text('Event Type: $type'),
+                          SizedBox(height: 15),
+                          //input careoff here 
+                          Text('Number of careoff ',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),),
+                          Text('(if only you insert 1 )'),
+                        TextField(
+                          
+                  controller: _careoffsController,
+                  keyboardType: TextInputType.number,
+                ),
+                          if (employeeId != null)
+                            ElevatedButton(
+                              onPressed: () async {
+                                final requestExists = await checkExistingRequest(
+                                    widget.eventId, employeeId);
+        
+                                if (!requestExists) {
+                                  db.insertData(
+                                    tableName: 'event_employee_request',
+                                    data: {
+                                      'event_id': widget.eventId,
+                                      'employee_id': employeeId,
+                                      'careoff':int.parse(_careoffsController.text)
+                                    },
+                                  );
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EventRequest(),
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          'You have already requested this event.'),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Text('Request Event'),
+                            ),
+                        ],
+                      );
+                    }
+                  },
+                ),
+        
+        
+        
+        
+        FutureBuilder<int>(
+          future: db.vacancyEmp(widget.eventId), // Replace with your event ID
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator(); // Display a loading indicator
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else {
+              final vacancy = snapshot.data ?? 0; // Access the vacancy value from the snapshot
+              return Text('Vacancy: $vacancy',
+              style: TextStyle(
+          fontWeight: FontWeight.bold
+              ),);
+            }
+          },
+        )
+        
+        
+        
+        
+        
+        
+        
+        
+        
+              ],
+            ),
           ),
         ),
         bottomNavigationBar: BottomAppBar(

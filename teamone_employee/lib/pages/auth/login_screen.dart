@@ -70,26 +70,10 @@ static const platform = MethodChannel('com.example.signuptoast');
                     SizedBox(
                       height: 50,
                     ),
-                    Icon(
-                      Icons.lock,
-                      size: 80,
-                      color: Colors.black,
-                    ),
-                    Text(
-                      'TeamOne',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 45,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.5,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black,
-                            blurRadius: 10,
-                            offset: Offset(5, 5),
-                          ),
-                        ],
-                      ),
+                    Image.asset(
+                      'lib/images/logo.png', // Path to your PNG image
+                      width: 210, // Set the desired width
+                      height: 210, // Set the desired height
                     ),
                   ],
                 ),
@@ -149,7 +133,7 @@ static const platform = MethodChannel('com.example.signuptoast');
                         Text(
                           'Sign In',
                           style: TextStyle(
-                            color: Color(0xff4c505b),
+                            color: Color.fromRGBO(0,0,0,0.8),
                             fontSize: 27,
                             fontWeight: FontWeight.w700,
                           ),
@@ -160,7 +144,7 @@ static const platform = MethodChannel('com.example.signuptoast');
                         CircleAvatar(
                           radius: 30,
 
-                          backgroundColor: Color(0xff4c505b),
+                          backgroundColor:Color.fromRGBO(0,0,0,0.8),
                           child: IconButton(
                             onPressed: () {
                               authServices.signInUser(userEmail: _emailController.text, userPassword: _passwordController.text, context: context);
@@ -193,7 +177,7 @@ static const platform = MethodChannel('com.example.signuptoast');
                             style: TextStyle(
                               decoration: TextDecoration.underline,
                               fontSize: 18,
-                              color: Color(0xff4c505b),
+                              color: Color.fromRGBO(0,0,0,0.8),
                             ),
                           ),
                         ),

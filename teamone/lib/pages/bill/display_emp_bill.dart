@@ -30,6 +30,7 @@ class _DisplayEmpBillState extends State<DisplayEmpBill> {
   TextEditingController careoffController =TextEditingController();
   TextEditingController senderController=TextEditingController();
   TextEditingController modeController=TextEditingController();
+  TextEditingController remarkController=TextEditingController();
 
 
 
@@ -138,6 +139,7 @@ careoffController.text = careoff.toString();
     careoffController.dispose();
     senderController.dispose();
     modeController.dispose();
+    remarkController.dispose();
 
     super.dispose();
   }
@@ -343,7 +345,20 @@ TableRow(
                   ),
 
 
-
+                  TableRow(
+                    children: [
+                      TableCell(
+                        child: Text('\t Remarks:',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      TableCell(
+                        child: TextFormField(
+                          controller: remarkController,
+                          keyboardType: TextInputType.text,
+                        ),
+                      ),
+                    ],
+                  ),
 
 
 
@@ -362,7 +377,7 @@ TableRow(
                 style: TextStyle(fontStyle: FontStyle.italic),
               ),
             ),
-            Spacer(),*/
+            Spacer(),
             ElevatedButton(
               onPressed: () {
                 // Navigate to MakePayment page
@@ -380,7 +395,7 @@ TableRow(
               },
               child: Text('Make Payment'),
             ),
-
+*/
             ElevatedButton(
               onPressed: () async {
                 // Call the billed function
@@ -410,7 +425,9 @@ final Response = await db.insertData(tableName: 'payment', data: {
 'fuel': int.parse(fuelController.text),
 'extra': int.parse(extraController.text),
 'sender': senderController.text.toString(),
-'mode_of_payment':modeController.text.toString()
+'mode_of_payment':modeController.text.toString(),
+'remarks':remarkController.text.toString()
+
 
 });
 

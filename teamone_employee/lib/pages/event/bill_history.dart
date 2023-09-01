@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:teamone_employee/main.dart';
+import 'package:teamone_employee/pages/dashboard/dashboard_screen.dart';
 import 'package:teamone_employee/services/supabase_client.dart';
 
 class BillHistory extends StatefulWidget {
@@ -91,9 +92,11 @@ class _BillHistoryState extends State<BillHistory> {
                   SizedBox(height: 8),
                   Text('Extra amount: ${payment['extra']}'),
                   SizedBox(height: 8),
+                  Text('Remarks: ${payment['remarks']}'),
+                  SizedBox(height: 8),
                   Text('Fuel amount: ${payment['fuel']}'),
                   SizedBox(height: 8),
-                  Text('Total: (${payment['amount']} * ${payment['careoff']}) + ${payment['fuel']} + ${payment['extra']}    =     ${payment['total']}'),
+                  Text('Total: \n(${payment['amount']} * ${payment['careoff']}) + ${payment['fuel']} + ${payment['extra']}    =     ${payment['total']}'),
                   SizedBox(height: 8),
                   Text('Mode of payment : ${payment['mode_of_payment']}'),
                   SizedBox(height: 8),
@@ -209,6 +212,32 @@ class _BillHistoryState extends State<BillHistory> {
           child: Icon(Icons.search),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      
+      
+      
+      
+      
+      
+              bottomNavigationBar: BottomAppBar(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Dashboard(),
+                    ),
+                  );
+                },
+                icon: Icon(Icons.home),
+              ),
+            ],
+          ),
+        ),
+      
+      
       ),
     );
   }

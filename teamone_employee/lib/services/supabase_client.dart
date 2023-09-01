@@ -39,7 +39,7 @@ class DatabaseServices {
 Future<List<Map<String, dynamic>>> fetchUserPaymentDetails(int empId) async {
   final response = await client
       .from('payment')
-      .select('id, emp_id, event_id, amount, payment_date, mode_of_payment, Bill_no,sender,careoff,extra,fuel,total')
+      .select('id, emp_id, event_id, amount, payment_date, mode_of_payment, Bill_no,sender,careoff,extra,fuel,total,remarks')
       .eq('emp_id', empId)
       .execute();
 
@@ -212,6 +212,35 @@ Future<List<Map<String, dynamic>>> fetchAllJoinEventData({
       print('Data insertion failed');
     }
   }
+
+
+  
+Future<int> vacancyEmp(int eventid) async {
+  final response = await client.from('assign')
+    .select()
+    .eq('event_id', eventid)
+    .execute();
+  
+  if (response.status != 200) {
+    throw response.status!;
+  }
+
+  final numberOfRows = response.data?.length ?? 0;
+
+  final response2 = await client.from('events')
+    .select('no_of_employees')
+    .eq('id', eventid)
+    .execute();
+  final number = response2.data[0]['no_of_employees'];
+
+  final vacancy = number - numberOfRows;
+  print(vacancy);
+  return vacancy;
+}
+
+
+
+
 
 
 

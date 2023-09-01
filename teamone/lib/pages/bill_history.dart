@@ -118,8 +118,7 @@ Widget _buildBillList(List<Map<String, dynamic>> paymentDetails) {
                   Text('Payment Date: ${payment['payment_date']}'),
                   if (payment['is_employee_payment'] == true) ...[
                     SizedBox(height: 4),
-                    if (payment['employee_details'] != null)
-                      Text('Employee Name: ${payment['employee_details']['name']}'),
+                      Text('Employee Name: ${payment['emp_id']}'),
                     if (event != null) ...[
                       SizedBox(height: 4),
                       Text('Event Name: ${event['event_name']}'),

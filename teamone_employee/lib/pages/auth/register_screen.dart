@@ -2,12 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:teamone_employee/pages/auth/login_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:teamone_employee/services/supabase_config.dart'; 
+import 'package:teamone_employee/services/supabase_config.dart';
 import 'package:teamone_employee/services/supabase_client.dart';
 import 'package:flutter/services.dart';
-
-
-
 
 class MyRegister extends StatefulWidget {
   const MyRegister({Key? key}) : super(key: key);
@@ -30,45 +27,37 @@ class _MyRegisterState extends State<MyRegister> {
   }
 
   Future<void> initializeSupabase() async {
-    final supabase = Supabase.initialize(url: supabaseUrl, anonKey: supabaseKey);
+    final supabase =
+        Supabase.initialize(url: supabaseUrl, anonKey: supabaseKey);
     await supabase;
   }
 
-static const platform = MethodChannel('com.example.signuptoast');
+  static const platform = MethodChannel('com.example.signuptoast');
 
-Future<void> showSignupSuccessToast() async {
-  try {
-    await platform.invokeMethod('showSignupSuccessToast'); // Use the correct method name
-  } catch (e) {
-    print('Error invoking method: $e');
+  Future<void> showSignupSuccessToast() async {
+    try {
+      await platform.invokeMethod(
+          'showSignupSuccessToast'); // Use the correct method name
+    } catch (e) {
+      print('Error invoking method: $e');
+    }
   }
-}
 
-
-
-
-
-
-
-Future<void> signUp() async {
+  Future<void> signUp() async {
     final supabase = Supabase.instance;
     final response = await supabase.client.auth.signUp(
-      email: _emailController.text,
-      password: _passwordController.text,
-      data: { 'name': _fullNameController.text}
-    );
-    if (response.session?.user.createdAt != null)  {
+        email: _emailController.text,
+        password: _passwordController.text,
+        data: {'name': _fullNameController.text});
+    if (response.session?.user.createdAt != null) {
       // Registration successful
-      showSignupSuccessToast(); 
+      showSignupSuccessToast();
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (context) => MyLogin()),
+        MaterialPageRoute(builder: (context) => MyLogin()),
       );
       // Handle success and navigate to next screen
     } else {
-
- 
       // Registration failed
       // Handle error
       print('Error21: ${response.session}');
@@ -85,7 +74,7 @@ Future<void> signUp() async {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor:  Colors.grey[300],
       body: SafeArea(
         child: Stack(
           children: [
@@ -96,12 +85,12 @@ Future<void> signUp() async {
                     SizedBox(
                       height: 50,
                     ),
-                    Icon(
-                      Icons.person_add,
-                      size: 80,
-                      color: Colors.black,
+                    Image.asset(
+                      'lib/images/logo.png', // Path to your PNG image
+                      width: 210, // Set the desired width
+                      height: 210, // Set the desired height
                     ),
-                    Text(
+                   /* Text(
                       'TeamOne',
                       style: TextStyle(
                         color: Colors.white,
@@ -116,7 +105,7 @@ Future<void> signUp() async {
                           )
                         ],
                       ),
-                    ),
+                    ),*/
                   ],
                 ),
               ),
@@ -228,7 +217,7 @@ Future<void> signUp() async {
                             style: TextStyle(
                               decoration: TextDecoration.underline,
                               fontSize: 18,
-                              color: Color(0xff4c505b),
+                              color:Color.fromRGBO(0,0,0,1),
                             ),
                           ),
                         ),
@@ -236,7 +225,7 @@ Future<void> signUp() async {
                         Text(
                           'Register',
                           style: TextStyle(
-                            color: Color(0xff4c505b),
+                            color: Color.fromRGBO(0,0,0,0.8),
                             fontSize: 27,
                             fontWeight: FontWeight.w700,
                           ),
@@ -246,7 +235,7 @@ Future<void> signUp() async {
                         ),
                         CircleAvatar(
                           radius: 30,
-                          backgroundColor: Color(0xff4c505b),
+                          backgroundColor: Color.fromRGBO(0,0,0,0.8),
                           child: IconButton(
                             onPressed: () {
                               signUp();
@@ -267,5 +256,3 @@ Future<void> signUp() async {
     );
   }
 }
-
-
