@@ -1,3 +1,4 @@
+import 'package:TeamOne/pages/dashboard/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:TeamOne/pages/employee/edit_emp.dart';
 import 'package:TeamOne/pages/employee/approve_emp.dart';
@@ -60,6 +61,42 @@ class _EmpManageState extends State<EmpManage> {
             ],
           ),
         ),
+      
+      
+      
+          
+          
+              bottomNavigationBar: BottomNavigationBar(
+          currentIndex: 0,
+          items: [
+            // Placeholder item for Generate Bill
+            BottomNavigationBarItem(
+              icon: Icon(Icons.new_releases_outlined),
+              label: ' Employee Management',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard),
+              label: 'Dashboard',
+            ),
+          ],
+          onTap: (index) {
+            if (index == 1) {
+              // Navigate to the Dashboard class
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => Dashboard()),
+              );
+            }
+          },
+        ),
+    
+      
+      
+      
+      
+      
+      
+      
       ),
     );
   }

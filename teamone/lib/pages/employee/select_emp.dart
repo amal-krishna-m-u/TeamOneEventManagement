@@ -1,3 +1,4 @@
+import 'package:TeamOne/pages/dashboard/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:TeamOne/services/supabase_client.dart';
 import 'package:TeamOne/main.dart';
@@ -15,7 +16,7 @@ class _SelectEmpState extends State<SelectEmp> {
   DatabaseServices db = DatabaseServices(client);
   late Future<List<Map<String, dynamic>>> employeeDataFuture;
   late GlobalKey<RefreshIndicatorState> refreshKey;
-
+late bool result = false;
   @override
   void initState() {
     super.initState();
@@ -117,15 +118,36 @@ class _SelectEmpState extends State<SelectEmp> {
                                 final editedCareoff =
                                     int.tryParse(careoffController.text);
                                 if (editedCareoff != null) {
-                                  await db.updateEmployeeApproval(
+                                  final  result = await db.updateEmployeeApproval(
                                       eventId: widget.eventId,
                                       employeeId: employeeId,
                                       approve: true,
                                       careoff: editedCareoff);
                                   // Refresh the data
+
+                                if (result){ 
+              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      'Employee assigned Succesfully .'),
+                                ),
+                              ); //
+                                }
+                                else{
+
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      'Unable to assign employee ,contact Database Service!!.'),
+                                ),
+                              ); //
+
+                                }
                                   await _refreshData();
                                   refreshKey.currentState?.show();
                                 }
+
+
                               }
                             },
                             child: Text('Approve'),
@@ -152,6 +174,39 @@ class _SelectEmpState extends State<SelectEmp> {
             },
           ),
         ),
+      
+      
+      
+      
+          
+          
+              bottomNavigationBar: BottomNavigationBar(
+          currentIndex: 0,
+          items: [
+            // Placeholder item for Generate Bill
+            BottomNavigationBarItem(
+              icon: Icon(Icons.new_releases_outlined),
+              label: ' Select Employees',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard),
+              label: 'Dashboard',
+            ),
+          ],
+          onTap: (index) {
+            if (index == 1) {
+              // Navigate to the Dashboard class
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => Dashboard()),
+              );
+            }
+          },
+        ),
+    
+      
+      
+      
       ),
     );
   }

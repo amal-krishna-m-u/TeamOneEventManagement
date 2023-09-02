@@ -527,7 +527,8 @@ class _MyEventsState extends State<MyEvents> {
                                 ),
                               ),
                               onDismissed: (direction) {
-                                handleDeleteEvent(eventName);
+                                          showConfirmationDialog('Confrim Deletion','This will delete this event and all data associated with it .Are you sure you want to delete ?!!', () =>handleDeleteEvent(eventName));
+
                               },
                               child: Container(
                                 decoration: BoxDecoration(
@@ -578,7 +579,8 @@ class _MyEventsState extends State<MyEvents> {
                                       if (isAdded)
                                         GestureDetector(
                                           onTap: () {
-                                            handleDeleteEvent(eventName);
+                                          showConfirmationDialog('Confrim Deletion','This will delete this event and all data associated with it .Are you sure you want to delete ?!!', () =>handleDeleteEvent(eventName));
+
                                           },
                                           child: Icon(
                                             Icons.delete,
@@ -652,7 +654,7 @@ class _MyEventsState extends State<MyEvents> {
                                     if (isAdded)
                                       GestureDetector(
                                         onTap: () {
-                                          handleDeleteEvent(eventName);
+                                          showConfirmationDialog('Confrim Deletion','This will delete this event and all data associated with it .Are you sure you want to delete ?!!', () =>handleDeleteEvent(eventName));
                                         },
                                         child: Icon(
                                           Icons.delete,
@@ -672,4 +674,38 @@ class _MyEventsState extends State<MyEvents> {
       ),
     );
   }
+
+
+
+
+
+
+
+
+Future<void> showConfirmationDialog(String title, String message, Function() onConfirm) async {
+  await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+              onConfirm(); // Call the provided function
+            },
+            child: Text('Confirm'),
+          ),
+        ],
+      );
+    },
+  );
+}
 }

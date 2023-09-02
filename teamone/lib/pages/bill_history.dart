@@ -1,3 +1,4 @@
+import 'package:TeamOne/pages/dashboard/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:TeamOne/main.dart';
 import 'package:TeamOne/services/supabase_client.dart';
@@ -140,6 +141,37 @@ class _BillHistoryState extends State<BillHistory> {
             ),
           ],
         ),
+      
+      
+      
+              bottomNavigationBar: BottomNavigationBar(
+          currentIndex: 0,
+          items: [
+            // Placeholder item for Generate Bill
+            BottomNavigationBarItem(
+              icon: Icon(Icons.new_releases_outlined),
+              label: ' Bill History',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard),
+              label: 'Dashboard',
+            ),
+          ],
+          onTap: (index) {
+            if (index == 1) {
+              // Navigate to the Dashboard class
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => Dashboard()),
+              );
+            }
+          },
+        ),
+      
+      
+      
+      
+      
       ),
     );
   }

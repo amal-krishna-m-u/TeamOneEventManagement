@@ -198,7 +198,8 @@ Future<void> fetchExistingData() async {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    submitDetails();
+                    showConfirmationDialog('Confrim Updation ', 'This will update the userdetails throughout the system  ', () => submitDetails());
+
                   },
                   child: Text(
                     'Submit Details',
@@ -214,7 +215,7 @@ Future<void> fetchExistingData() async {
  SizedBox(width: 46),
             ElevatedButton(
               onPressed: () {
-                deleteUser();
+showConfirmationDialog('Confrim Deletion ', 'This will delete the user and all associated details inlcuding assignments and payment history ', () => deleteUser());
               },
               child: Text(
                 'Delete User',
@@ -233,12 +234,41 @@ Future<void> fetchExistingData() async {
           ],
         ),
       ),
+    
+    
+    
+        
+          
+              bottomNavigationBar: BottomNavigationBar(
+          currentIndex: 0,
+          items: [
+            // Placeholder item for Generate Bill
+            BottomNavigationBarItem(
+              icon: Icon(Icons.new_releases_outlined),
+              label: ' Event Details',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard),
+              label: 'Dashboard',
+            ),
+          ],
+          onTap: (index) {
+            if (index == 1) {
+              // Navigate to the Dashboard class
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => Dashboard()),
+              );
+            }
+          },
+        ),
+    
+    
      ),
       );
   }
   
 Future<void> deleteUser() async {
-
 
   DatabaseServices db = DatabaseServices(client);
 
@@ -250,4 +280,40 @@ Future<void> deleteUser() async {
     ),
   );
   }
+
+
+
+
+
+
+
+Future<void> showConfirmationDialog(String title, String message, Function() onConfirm) async {
+  await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+              onConfirm(); // Call the provided function
+            },
+            child: Text('Confirm'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
+
 }

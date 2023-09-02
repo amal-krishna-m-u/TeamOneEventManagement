@@ -154,7 +154,16 @@ class _info_outlineState extends State<info_outline> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+   return Theme(
+      data: ThemeData.from(
+        colorScheme: ColorScheme.light(
+          primary: Color(0xFF283747),
+          secondary: Colors.white,
+        ),
+      ),
+    
+    
+   child: Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(
           color: AppColorScheme.appColorScheme.secondary,
@@ -219,11 +228,13 @@ class _info_outlineState extends State<info_outline> {
                             title: Text('Employee Name: ${empName[i]}'),
                             subtitle: Text('Careoff: ${careoffperemp[i]}'),
                             onLongPress: () {
-                              removeempfromevent(assignid[i]);
+
+
+showConfirmationDialog('Confrim Employee Unassignment', 'Are You sure you want to unassign this employee,this will unassign the employee and his careoffs ', () => removeempfromevent(assignid[i]));
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                      'Unassigned employee: ${empName[i]}.'),
+                                      'employee: ${empName[i]}.'),
                                 ),
                               );
                             },
@@ -233,7 +244,52 @@ class _info_outlineState extends State<info_outline> {
                 },
               ),
       ),
+    
+    
+    
+          
+              bottomNavigationBar: BottomNavigationBar(
+          currentIndex: 0,
+          items: [
+            // Placeholder item for Generate Bill
+            BottomNavigationBarItem(
+              icon: Icon(Icons.new_releases_outlined),
+              label: ' Event Info',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard),
+              label: 'Dashboard',
+            ),
+          ],
+          onTap: (index) {
+            if (index == 1) {
+              // Navigate to the Dashboard class
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => Dashboard()),
+              );
+            }
+          },
+        ),
+    
+    
+    
+    
+    
+    
+   )
+    
+    
     );
+
+
+
+
+
+
+
+
+
   }
 
   Future<void> fetchTotalAssignedCareoffs() async {
@@ -297,10 +353,10 @@ Future<void> editDetails(int eventid) async {
       placesController.text  = tableData[0]['place']?.toString() ?? '';
       numberParticipantsController.text  = tableData[0]['participants']?.toString() ?? '';
       employeesController.text  = tableData[0]['employees']?.toString() ?? '';
-     event_startedController.text  = tableData[0]['event_started'].toString();
-      event_completedController.text = tableData[0]['event_completed'].toString();
-      payment_receivedController.text  = tableData[0]['payment_received'].toString();
-      payment_completedController.text  = tableData[0]['payment_completed'].toString() ;
+     event_startedController.text  = tableData[0]['event_started'];
+      event_completedController.text = tableData[0]['event_completed'];
+      payment_receivedController.text  = tableData[0]['payment_received'];
+      payment_completedController.text  = tableData[0]['payment_completed'];
       dateController.text  = tableData[0]['event_date']?.toString() ?? '';
       event_typeController.text  = tableData[0]['event_type']?.toString() ?? '';
       event_teamController.text  = tableData[0]['event_team'].toString();
@@ -328,6 +384,25 @@ Future<void> editDetails(int eventid) async {
           content: SingleChildScrollView(
             child: Column(
               children: [
+                TextFormField(
+                  controller: TextEditingController(text: formattedDate), // Set the selected date
+                  readOnly: true, // Make it read-only
+                  onTap: () async {
+                    // Show the date picker again when the date field is tapped
+                    selectedDate = (await showDatePicker(
+                      context: context,
+                      initialDate: selectedDate,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2101),
+                    ))!;
+                    if (selectedDate != null) {
+                      // Update the date field with the selected date
+                      formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+                      dateController.text = formattedDate;
+                    }
+                  },
+                  decoration: InputDecoration(labelText: 'Event Date'),
+                ),
                 TextFormField(
                   controller: eventsController,
                   decoration: InputDecoration(labelText: 'Event Name'),
@@ -364,25 +439,6 @@ Future<void> editDetails(int eventid) async {
                   decoration: InputDecoration(labelText: 'Payment Completed'),
                 ), 
                 TextFormField(
-                  controller: TextEditingController(text: formattedDate), // Set the selected date
-                  readOnly: true, // Make it read-only
-                  onTap: () async {
-                    // Show the date picker again when the date field is tapped
-                    selectedDate = (await showDatePicker(
-                      context: context,
-                      initialDate: selectedDate,
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2101),
-                    ))!;
-                    if (selectedDate != null) {
-                      // Update the date field with the selected date
-                      formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
-                      dateController.text = formattedDate;
-                    }
-                  },
-                  decoration: InputDecoration(labelText: 'Event Date'),
-                ),
-                TextFormField(
                   controller: event_typeController,
                   decoration: InputDecoration(labelText: 'Event Type'),
                 ),
@@ -400,14 +456,14 @@ Future<void> editDetails(int eventid) async {
               final response = await client
   .from('events')
   .update({
-    'event_name': eventsController.text.isNotEmpty ? eventsController.text : null,
-    'event_place': placesController.text.isNotEmpty ? placesController.text : null,
-    'participants': numberParticipantsController.text.isNotEmpty ? int.parse(numberParticipantsController.text) : null,
-    'no_of_employees': employeesController.text.isNotEmpty ? int.parse(employeesController.text) : null,
-    'event_started': event_startedController.text.isNotEmpty ? event_startedController.text : null,
-    'event_completed': event_completedController.text.isNotEmpty ? event_completedController.text : null,
-    'payment_received': payment_receivedController.text.isNotEmpty ? payment_receivedController.text : null,
-    'payment_completed': payment_completedController.text.isNotEmpty ? payment_completedController.text : null,
+    'event_name': eventsController.text != 'null' ? eventsController.text : null,
+    'event_place': placesController.text != 'null' ? placesController.text : null,
+    'participants': numberParticipantsController.text != 'null' ? int.parse(numberParticipantsController.text) : null,
+    'no_of_employees': employeesController.text != 'null' ? int.parse(employeesController.text) : null,
+    'event_started': event_startedController.text != 'null' ? event_startedController.text : null,
+    'event_completed': event_completedController.text != 'null' ? event_completedController.text : null,
+    'payment_received': payment_receivedController.text != 'null' ? payment_receivedController.text : null,
+    'payment_completed': payment_completedController.text != 'null' ? payment_completedController.text : null,
     'event_date': formattedDate.isNotEmpty ? formattedDate : null,
     'event_type': event_typeController.text.isNotEmpty ? event_typeController.text : null,
     'event_management_team': event_teamController.text.isNotEmpty ? event_teamController.text : null,
@@ -449,5 +505,52 @@ Future<void> editDetails(int eventid) async {
 }
 
 
+
+
+
+
+
+
+
+Future<void> showConfirmationDialog(String title, String message, Function() onConfirm) async {
+  await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); 
+              // Close the dialog
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      'Employee remains assigned.'),
+                                ),
+                              ); 
+              
+            },
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+              onConfirm();
+              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      'Employee Unassigned.'),
+                                ),
+                              ); // Call the provided function
+            },
+            child: Text('Confirm'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
 }

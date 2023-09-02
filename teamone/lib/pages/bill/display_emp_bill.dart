@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:TeamOne/services/supabase_client.dart';
 import 'package:TeamOne/main.dart';
@@ -398,9 +399,9 @@ TableRow(
             ),
 */
             ElevatedButton(
-              onPressed: () async {
-                // Call the billed function
-                await billed();
+              onPressed: ()async{
+  
+billed();
 
                 // Navigate back to the previous page
                 Navigator.pop(context);
@@ -441,6 +442,40 @@ final Response = await db.insertData(tableName: 'payment', data: {
 
 
   }
+
+
+
+
+
+
+
+
+Future<void> showConfirmationDialog(String title, String message, Function() onConfirm) async {
+  await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+              onConfirm(); // Call the provided function
+            },
+            child: Text('Confirm'),
+          ),
+        ],
+      );
+    },
+  );
+}
 }
 
 
