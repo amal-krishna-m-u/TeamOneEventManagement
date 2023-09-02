@@ -39,6 +39,7 @@ class _DisplayEmpBillState extends State<DisplayEmpBill> {
     super.initState();
     fetchEventAndEmployeeDetails();
     fetchLastBillNumber();
+    salaryController.text = '450';
   }
 
   Future<void> fetchEventAndEmployeeDetails() async {
@@ -157,7 +158,7 @@ careoffController.text = careoff.toString();
     return Scaffold(
       appBar: AppBar(title: Text('Bill Details')),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -202,33 +203,6 @@ careoffController.text = careoff.toString();
                       ),
                       TableCell(
                         child: Text(eventName),
-                      ),
-                    ],
-                  ),
-                  TableRow(
-                    children: [
-                      TableCell(
-                        child: Text('\t Date of Event:',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                      ),
-                      TableCell(
-                        child: Text(eventDate
-                            .toString()
-                            .split(' ')[0]), // Display only date
-                      ),
-                    ],
-                  ),
-                  TableRow(
-                    children: [
-                      TableCell(
-                        child: Text('\t Bill Date:',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                      ),
-                      TableCell(
-                        child: Text(DateTime.now()
-                            .toLocal()
-                            .toString()
-                            .split(' ')[0]), // Display current date
                       ),
                     ],
                   ),
@@ -323,7 +297,7 @@ TableRow(
                       TableCell(
                         child: TextFormField(
                           controller: senderController,
-                          keyboardType: TextInputType.number,
+                          keyboardType: TextInputType.text,
                         ),
                       ),
                     ],
@@ -338,7 +312,7 @@ TableRow(
                       TableCell(
                         child: TextFormField(
                           controller: modeController,
-                          keyboardType: TextInputType.number,
+                          keyboardType: TextInputType.text,
                         ),
                       ),
                     ],
@@ -362,6 +336,33 @@ TableRow(
 
 
 
+                  TableRow(
+                    children: [
+                      TableCell(
+                        child: Text('\t Date of Event:',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      TableCell(
+                        child: Text(eventDate
+                            .toString()
+                            .split(' ')[0]), // Display only date
+                      ),
+                    ],
+                  ),
+                  TableRow(
+                    children: [
+                      TableCell(
+                        child: Text('\t Bill Date:',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      TableCell(
+                        child: Text(DateTime.now()
+                            .toLocal()
+                            .toString()
+                            .split(' ')[0]), // Display current date
+                      ),
+                    ],
+                  ),
 
 
 
@@ -404,7 +405,7 @@ TableRow(
                 // Navigate back to the previous page
                 Navigator.pop(context);
               },
-              child: Text('Create Bill and Go Back'),
+              child: Text('Bill'),
             ),
 
           ],

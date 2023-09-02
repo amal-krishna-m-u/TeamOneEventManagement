@@ -22,7 +22,7 @@ class _MyLoginState extends State<MyLogin> {
   final TextEditingController _passwordController = TextEditingController();
 
   AuthServices authServices = AuthServices(client);
-
+/*
   static const platform = MethodChannel('com.example.signuptoast');
 
   Future<void> handleSuccessfulLogin() async {
@@ -41,7 +41,7 @@ class _MyLoginState extends State<MyLogin> {
       print('Error invoking method: $e');
     }
   }
-
+*/
   @override
   void initState() {
     super.initState();
@@ -156,7 +156,7 @@ class _MyLoginState extends State<MyLogin> {
                                     userPassword: _passwordController.text,
                                     context: context);
                       
-                                handleSuccessfulLogin();
+                               // handleSuccessfulLogin();
                               
                               
                             },

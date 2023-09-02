@@ -1,5 +1,3 @@
-
-
 import 'package:TeamOne/pages/app_colors.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +20,7 @@ class info_outline extends StatefulWidget {
 }
 
 class _info_outlineState extends State<info_outline> {
-   var eventid;
+  var eventid;
   final client = SupabaseClient(supabaseUrl, supabaseKey);
   List<Map<String, dynamic>> tableData = [];
   bool isLoading = true;
@@ -39,13 +37,25 @@ class _info_outlineState extends State<info_outline> {
   List<String> event_type = [];
   List<String> event_team = [];
   List<String> eventname = [];
-List<String> eventids = [];
-List <String> empName =[];
-List <int> careoffperemp =[];
-int totalCareoffs =0;
-List <int> assignid =[];
-bool tap = true;
+  List<String> eventids = [];
+  List<String> empName = [];
+  List<int> careoffperemp = [];
+  int totalCareoffs = 0;
+  List<int> assignid = [];
+  bool tap = true;
 
+  TextEditingController eventsController = TextEditingController();
+  TextEditingController placesController = TextEditingController();
+  TextEditingController numberParticipantsController = TextEditingController();
+  TextEditingController employeesController = TextEditingController();
+  TextEditingController event_startedController = TextEditingController();
+  TextEditingController event_completedController = TextEditingController();
+  TextEditingController payment_receivedController = TextEditingController();
+  TextEditingController payment_completedController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
+  TextEditingController event_typeController = TextEditingController();
+  TextEditingController event_teamController = TextEditingController();
+  TextEditingController eventnameController = TextEditingController();
 
   @override
   @override
@@ -61,25 +71,19 @@ bool tap = true;
 
     fetchEventsFromSupabase();
     //fetchTotalAssignedCareoffs();
-    
   }
-
 
   Future<void> _refreshData() async {
     // Implement the data refreshing logic here
- Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                   info_outline (
-                                                  event: widget.event,
-                                                ),
-                                              ),
-                                            );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => info_outline(
+          event: widget.event,
+        ),
+      ),
+    );
   }
-
-
-
 
   Future<void> fetchEventsFromSupabase() async {
     String name = widget.event;
@@ -100,7 +104,8 @@ bool tap = true;
 
         setState(() {
           tableData = [
-            {'eventids': events['id'] as int ?? 0,
+            {
+              'eventids': events['id'] as int ?? 0,
               'eventname': events['event_name']?.toString() ?? '',
               'place': events['event_place']?.toString() ?? '',
               'participants': events['participants'] as int? ?? 0,
@@ -115,10 +120,9 @@ bool tap = true;
               'event_team': events['event_management_team']?.toString() ?? '',
             }
           ];
-             eventid = tableData[0]['eventids'] as int ;
-             print('event id in setsate $eventid');
+          eventid = tableData[0]['eventids'] as int;
+          print('event id in setsate $eventid');
         });
-
       } else {
         // No matching event found
         setState(() {
@@ -134,7 +138,7 @@ bool tap = true;
           event_type = [];
           event_team = [];
           eventname = [];
-          eventids=[];
+          eventids = [];
         });
       }
     } else {
@@ -142,16 +146,14 @@ bool tap = true;
       print('Error fetching events from Supabase: ${response.data.toString()}');
     }
     setState(() {
+
       isLoading =
           false; // Set isLoading to false when data fetching is complete
     });
-    
   }
-  
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(
@@ -165,6 +167,13 @@ bool tap = true;
             color: AppColorScheme.appColorScheme.secondary,
           ),
         ),
+        actions: [
+          IconButton(
+            onPressed: () => editDetails(eventid),
+            icon: Icon(Icons.date_range), // Replace with your desired icon
+            tooltip: "Select Date Range", // Optional tooltip
+          ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: _refreshData,
@@ -199,25 +208,26 @@ bool tap = true;
                       ListTile(
                         title: Text(
                             'EMPLOYEES :      ${item['employees'].toString()}.          Total careoff: $totalCareoffs'),
-                            onTap: () => fetchTotalAssignedCareoffs(),
-                            
-                            // Use 'employees' instead of 'no_of_employees'
+                        onTap: () => fetchTotalAssignedCareoffs(),
+
+                        // Use 'employees' instead of 'no_of_employees'
                       ),
                       Divider(),
-                          if (empName.isNotEmpty && careoffperemp.isNotEmpty)
-        for (int i = 0; i < empName.length; i++)
-          ListTile(
-            title: Text('Employee Name: ${empName[i]}'),
-            subtitle: Text('Careoff: ${careoffperemp[i]}'),
-            onLongPress:(){  removeempfromevent(assignid[i]);
-              ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Unassigned employee: ${empName[i]}.'),
-            ),
-          );},
-          ),
-      
-                   
+                      if (empName.isNotEmpty && careoffperemp.isNotEmpty)
+                        for (int i = 0; i < empName.length; i++)
+                          ListTile(
+                            title: Text('Employee Name: ${empName[i]}'),
+                            subtitle: Text('Careoff: ${careoffperemp[i]}'),
+                            onLongPress: () {
+                              removeempfromevent(assignid[i]);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      'Unassigned employee: ${empName[i]}.'),
+                                ),
+                              );
+                            },
+                          ),
                     ],
                   );
                 },
@@ -225,76 +235,219 @@ bool tap = true;
       ),
     );
   }
-Future<void> fetchTotalAssignedCareoffs() async {
 
+  Future<void> fetchTotalAssignedCareoffs() async {
+    DatabaseServices db = DatabaseServices(client);
 
-  DatabaseServices db = DatabaseServices(client);
+    int totalCareoff = 0;
 
-   int totalCareoff = 0;
+    //set the values in empName to []
 
-   //set the values in empName to [] 
- 
-  final assignedEmployeeData = await db.fetchAssignedEmployeesForEvent(
-    eventId: eventid,
-  );
-
- 
-
-  for (final data in assignedEmployeeData) {
-    final employeeId = data['emp_id'] as int;
-    final careoffsData = await db.fetchData(
-      tableName: 'assign',
-      columnName: 'emp_id',
-      columnValue: employeeId.toString(),
+    final assignedEmployeeData = await db.fetchAssignedEmployeesForEvent(
+      eventId: eventid,
     );
-    if (careoffsData.isNotEmpty && careoffsData[0]['careoff'] != null) {
-      int  careoffs = careoffsData[0]['careoff'];
-      assignid.add(careoffsData[0]['id']);
-   
-      totalCareoff += careoffs;
 
+    for (final data in assignedEmployeeData) {
+      final employeeId = data['emp_id'] as int;
+      final careoffsData = await db.fetchData(
+        tableName: 'assign',
+        columnName: 'emp_id',
+        columnValue: employeeId.toString(),
+      );
+      if (careoffsData.isNotEmpty && careoffsData[0]['careoff'] != null) {
+        int careoffs = careoffsData[0]['careoff'];
+        assignid.add(careoffsData[0]['id']);
 
+        totalCareoff += careoffs;
 
-
-      final empData = await db.fetchData(tableName: 'employee', columnName: 'id', columnValue: employeeId.toString());
-      if (empData.isNotEmpty && empData[0]['name']!= null && tap){
-        
-empName.add(empData[0]['name']);
+        final empData = await db.fetchData(
+            tableName: 'employee',
+            columnName: 'id',
+            columnValue: employeeId.toString());
+        if (empData.isNotEmpty && empData[0]['name'] != null && tap) {
+          empName.add(empData[0]['name']);
           careoffperemp.add(careoffs);
-       
-
-
-
+        }
       }
     }
-  
+    tap = false;
+    print('Total Assigned Careoffs: $totalCareoffs');
 
-  
-
-
-}
-   tap = false;
-  print('Total Assigned Careoffs: $totalCareoffs');
-
-
-
-
-
-  setState(() {
-totalCareoffs = totalCareoff;
-    // Here, you might want to update your UI with the totalCareoffs value.
-  });
-}
-
-  Future <void>removeempfromevent ( id) async{
-
-
-
-  DatabaseServices db = DatabaseServices(client);
-  print('assign id is :$id');
-
-db.deleteData(tableName: 'assign', columnName: 'id', columnValue: id.toString());
-
-
+    setState(() {
+      totalCareoffs = totalCareoff;
+      // Here, you might want to update your UI with the totalCareoffs value.
+    });
   }
+
+  Future<void> removeempfromevent(id) async {
+    DatabaseServices db = DatabaseServices(client);
+    print('assign id is :$id');
+
+    db.deleteData(
+        tableName: 'assign', columnName: 'id', columnValue: id.toString());
+  }
+
+
+
+Future<void> editDetails(int eventid) async {
+
+
+
+        eventsController.text = tableData[0]['eventname']?.toString() ?? '';
+      placesController.text  = tableData[0]['place']?.toString() ?? '';
+      numberParticipantsController.text  = tableData[0]['participants']?.toString() ?? '';
+      employeesController.text  = tableData[0]['employees']?.toString() ?? '';
+     event_startedController.text  = tableData[0]['event_started'].toString();
+      event_completedController.text = tableData[0]['event_completed'].toString();
+      payment_receivedController.text  = tableData[0]['payment_received'].toString();
+      payment_completedController.text  = tableData[0]['payment_completed'].toString() ;
+      dateController.text  = tableData[0]['event_date']?.toString() ?? '';
+      event_typeController.text  = tableData[0]['event_type']?.toString() ?? '';
+      event_teamController.text  = tableData[0]['event_team'].toString();
+
+
+  DateTime selectedDate = DateTime.now(); // Initialize with current date
+/*
+  // Show a date picker dialog to select the event date
+  selectedDate = (await showDatePicker(
+    context: context,
+    initialDate: selectedDate,
+    firstDate: DateTime(2000),
+    lastDate: DateTime(2101),
+  ))!;
+*/
+  if (selectedDate != null) {
+    // User selected a date, format it as needed
+    String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Edit Event Details'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: eventsController,
+                  decoration: InputDecoration(labelText: 'Event Name'),
+                ),
+                TextFormField(
+                  controller: placesController,
+                  decoration: InputDecoration(labelText: 'Event Place'),
+                ),
+                TextFormField(
+                  controller: numberParticipantsController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(labelText: 'Participants'),
+                ),
+                TextFormField(
+                  controller: employeesController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(labelText: 'No. of Employees'),
+                ),
+                
+                TextFormField(
+                  controller: event_startedController,
+                  decoration: InputDecoration(labelText: 'Event Started'),
+                ),
+                TextFormField(
+                  controller: event_completedController,
+                  decoration: InputDecoration(labelText: 'Event Completed'),
+                ),
+                TextFormField(
+                  controller: payment_receivedController,
+                  decoration: InputDecoration(labelText: 'Payment Received'),
+                ),
+                TextFormField(
+                  controller: payment_completedController,
+                  decoration: InputDecoration(labelText: 'Payment Completed'),
+                ), 
+                TextFormField(
+                  controller: TextEditingController(text: formattedDate), // Set the selected date
+                  readOnly: true, // Make it read-only
+                  onTap: () async {
+                    // Show the date picker again when the date field is tapped
+                    selectedDate = (await showDatePicker(
+                      context: context,
+                      initialDate: selectedDate,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2101),
+                    ))!;
+                    if (selectedDate != null) {
+                      // Update the date field with the selected date
+                      formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+                      dateController.text = formattedDate;
+                    }
+                  },
+                  decoration: InputDecoration(labelText: 'Event Date'),
+                ),
+                TextFormField(
+                  controller: event_typeController,
+                  decoration: InputDecoration(labelText: 'Event Type'),
+                ),
+                TextFormField(
+                  controller: event_teamController,
+                  decoration: InputDecoration(labelText: 'Event Management Team'),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                // Generate a Supabase update query to update the event details
+              final response = await client
+  .from('events')
+  .update({
+    'event_name': eventsController.text.isNotEmpty ? eventsController.text : null,
+    'event_place': placesController.text.isNotEmpty ? placesController.text : null,
+    'participants': numberParticipantsController.text.isNotEmpty ? int.parse(numberParticipantsController.text) : null,
+    'no_of_employees': employeesController.text.isNotEmpty ? int.parse(employeesController.text) : null,
+    'event_started': event_startedController.text.isNotEmpty ? event_startedController.text : null,
+    'event_completed': event_completedController.text.isNotEmpty ? event_completedController.text : null,
+    'payment_received': payment_receivedController.text.isNotEmpty ? payment_receivedController.text : null,
+    'payment_completed': payment_completedController.text.isNotEmpty ? payment_completedController.text : null,
+    'event_date': formattedDate.isNotEmpty ? formattedDate : null,
+    'event_type': event_typeController.text.isNotEmpty ? event_typeController.text : null,
+    'event_management_team': event_teamController.text.isNotEmpty ? event_teamController.text : null,
+  })
+  .eq('id', eventid)
+  .execute();
+
+                if (response.status == 200 ||
+                    response.status == 202 ||
+                    response.status == 204) {
+                  // Successful update
+                  print('Event details updated successfully.');
+                  // Close the dialog
+                  Navigator.of(context).pop();
+                  // You might want to refresh the UI to reflect the changes
+                  // by calling a function to fetch updated data.
+                  fetchEventsFromSupabase();
+                } else {
+                  // Error occurred while updating
+                  print('Error updating event details: ${response.status}');
+                  // Display an error message to the user if needed.
+                  // You can use Flushbar or any other method for this.
+                  // For example:
+                  Flushbar(
+                    title: 'Error',
+                    message: 'Failed to update event details. Please try again.',
+                    backgroundColor: Colors.red,
+                    duration: Duration(seconds: 3),
+                  )..show(context);
+                }
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+
+
 }
